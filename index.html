@@ -319,12 +319,12 @@
     <div class="auth-form active" id="authLogin">
       <div class="field-group">
         <label>Email ou pseudo</label>
-        <input type="text" id="aoLoginId" placeholder="ex: dylan@codex.fr" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin(true)">
+        <input type="text" id="aoLoginId" placeholder="email@exemple.fr" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin(true)">
       </div>
       <div class="field-group">
         <label>Mot de passe</label>
         <div class="pwd-wrap">
-          <input type="password" id="aoLoginPwd" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin(true)">
+          <input type="password" id="aoLoginPwd" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin(true)">
           <button class="pwd-toggle" onclick="toggleFieldPwd('aoLoginPwd')" type="button">👁</button>
         </div>
       </div>
@@ -339,20 +339,20 @@
     <div class="auth-form" id="authRegister">
       <div class="field-group">
         <label>Prénom &amp; Nom</label>
-        <input type="text" id="aoRegName" placeholder="ex: Dylan Fontaine" maxlength="40">
+        <input type="text" id="aoRegName" placeholder="Prénom Nom" maxlength="40" autocomplete="off">
       </div>
       <div class="field-group">
         <label>Email</label>
-        <input type="text" id="aoRegEmail" placeholder="ex: dylan@codex.fr" autocomplete="email">
+        <input type="text" id="aoRegEmail" placeholder="email@exemple.fr" autocomplete="off">
       </div>
       <div class="field-group">
         <label>Pseudo</label>
-        <input type="text" id="aoRegPseudo" placeholder="ex: Dylan_Industriel" maxlength="24">
+        <input type="text" id="aoRegPseudo" placeholder="MonPseudo" maxlength="24" autocomplete="off">
       </div>
       <div class="field-group">
         <label>Mot de passe</label>
         <div class="pwd-wrap">
-          <input type="password" id="aoRegPwd" placeholder="••••••••" autocomplete="new-password" oninput="checkPwdStrength(this.value)">
+          <input type="password" id="aoRegPwd" placeholder="••••••••" autocomplete="new-password" data-no-ac="1" oninput="checkPwdStrength(this.value)">
           <button class="pwd-toggle" onclick="toggleFieldPwd('aoRegPwd')" type="button">👁</button>
         </div>
         <div class="pwd-strength" id="pwdStrength"></div>
@@ -377,11 +377,11 @@
       </p>
       <div class="field-group">
         <label>Votre email ou pseudo</label>
-        <input type="text" id="forgotId" placeholder="ex: dylan@codex.fr" maxlength="60">
+        <input type="text" id="forgotId" placeholder="email@exemple.fr" maxlength="60">
       </div>
       <div class="field-group">
         <label>Message à l'administrateur (optionnel)</label>
-        <textarea id="forgotMsg" maxlength="200" placeholder="ex: Je n'arrive plus à me connecter depuis hier..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px;outline:none;resize:none;height:60px;"></textarea>
+        <textarea id="forgotMsg" maxlength="200" placeholder="Je n'arrive plus à me connecter depuis hier..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px;outline:none;resize:none;height:60px;"></textarea>
       </div>
       <div class="auth-err" id="forgotErr"></div>
       <div id="forgotSuccess" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent3);margin-bottom:10px;display:none;padding:8px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.3);">✓ Demande envoyée — votre admin local vous contactera.</div>
@@ -676,11 +676,11 @@
 
     <div class="field-group">
       <label>Pseudo</label>
-      <input type="text" id="fieldPseudo" placeholder="ex: Dylan_Industriel" maxlength="24">
+      <input type="text" id="fieldPseudo" placeholder="MonPseudo" maxlength="24">
     </div>
     <div class="field-group">
       <label>Email (fictif)</label>
-      <input type="text" id="fieldEmail" placeholder="ex: dylan@codex.fr">
+      <input type="text" id="fieldEmail" placeholder="email@exemple.fr">
     </div>
     <div class="field-group">
       <label>Mot de passe</label>
@@ -774,7 +774,7 @@
     <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;">ACCÉDEZ À VOTRE ESPACE</div>
     <div class="field-group">
       <label>Identifiant (email ou pseudo)</label>
-      <input type="text" id="loginId" placeholder="ex: dylan@codex.fr" autocomplete="username">
+      <input type="text" id="loginId" placeholder="email@exemple.fr" autocomplete="off" autocomplete="username">
     </div>
     <div class="field-group">
       <label>Mot de passe</label>
@@ -800,15 +800,15 @@
     <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:16px;">CRÉER VOTRE COMPTE</div>
     <div class="field-group">
       <label>Prénom &amp; Nom</label>
-      <input type="text" id="regName" placeholder="ex: Dylan Fontaine" maxlength="40">
+      <input type="text" id="regName" placeholder="Prénom Nom" maxlength="40">
     </div>
     <div class="field-group">
       <label>Email</label>
-      <input type="text" id="regEmail" placeholder="ex: dylan@codex.fr" autocomplete="email">
+      <input type="text" id="regEmail" placeholder="email@exemple.fr" autocomplete="off" autocomplete="email">
     </div>
     <div class="field-group">
       <label>Pseudo (affiché sur le profil)</label>
-      <input type="text" id="regPseudo" placeholder="ex: Dylan_Industriel" maxlength="24">
+      <input type="text" id="regPseudo" placeholder="MonPseudo" maxlength="24">
     </div>
     <div class="field-group">
       <label>Mot de passe</label>
@@ -970,15 +970,15 @@
     <button class="modal-close" onclick="closeModal('createModuleModal')">✕ FERMER</button>
     <div class="field-group">
       <label>Nom du module (onglet métier)</label>
-      <input type="text" id="moduleTabName" placeholder="ex: Agroalimentaire" maxlength="40">
+      <input type="text" id="moduleTabName" placeholder="Agroalimentaire" maxlength="40">
     </div>
     <div class="field-group">
       <label>Clé interne (sans espaces, minuscules)</label>
-      <input type="text" id="moduleTabKey" placeholder="ex: agro" maxlength="20" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
+      <input type="text" id="moduleTabKey" placeholder="agro" maxlength="20" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')">
     </div>
     <div class="field-group">
       <label>Emoji</label>
-      <input type="text" id="moduleTabEmoji" placeholder="ex: 🌾" maxlength="4" style="width:60px;">
+      <input type="text" id="moduleTabEmoji" placeholder="🌾" maxlength="4" style="width:60px;">
     </div>
     <div class="field-group">
       <label>Couleur (hex)</label>
@@ -1008,7 +1008,7 @@
       </p>
       <div class="field-group">
         <label>Description de ton parcours <span style="color:var(--muted);">(200 caractères max)</span></label>
-        <textarea id="verifyText" maxlength="200" placeholder="ex: 12 ans chez Aperam en tant qu'opérateur/régleur presse, titulaire d'un Bac Pro MSPC..."
+        <textarea id="verifyText" maxlength="200" placeholder="12 ans chez Aperam en tant qu'opérateur/régleur presse, titulaire d'un Bac Pro MSPC..."
           style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px;outline:none;resize:none;height:80px;"
           oninput="updateVerifyCount(this)"></textarea>
         <div style="text-align:right;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);margin-top:2px;">
@@ -2912,7 +2912,7 @@ function renderAdminRequests() {
         ${r.message?`<div style="font-size:9px;color:var(--text);padding:5px 7px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:8px;">"${r.message}"</div>`:''}
         <div style="font-size:8px;color:var(--muted);margin-bottom:5px;letter-spacing:1px;">NOUVEAU MOT DE PASSE TEMPORAIRE :</div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="newpwd_${r.id}" placeholder="ex: Temp1234" maxlength="30"
+          <input type="text" id="newpwd_${r.id}" placeholder="Temp1234" maxlength="30"
             style="flex:1;min-width:100px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 8px;outline:none;">
           <button onclick="resolveRequest('${r.id}',true)" style="font-size:8px;padding:5px 8px;border:1px solid var(--accent3);color:var(--accent3);background:rgba(0,255,136,0.06);cursor:pointer;white-space:nowrap;">✓ RÉINITIALISER</button>
           <button onclick="resolveRequest('${r.id}',false)" style="font-size:8px;padding:5px 8px;border:1px solid #ff4444;color:#ff4444;background:transparent;cursor:pointer;">✕</button>
@@ -4505,7 +4505,7 @@ function renderOrgConfig() {
         Aucune organisation configurée. Crée ton organisation pour associer tes utilisateurs et personnaliser l'interface.
       </div>
       <div class="field-group"><label>Nom de l'organisation</label>
-        <input type="text" id="orgNameInput" placeholder="ex: APERAM" maxlength="40"></div>
+        <input type="text" id="orgNameInput" placeholder="APERAM" maxlength="40"></div>
       <div class="field-group"><label>Couleur principale</label>
         <input type="color" id="orgColorInput" value="#0057a8"></div>
       <div class="field-group"><label>Formule</label>
@@ -5092,7 +5092,7 @@ function openAdminAddMaitrise(uid, tabKey) {
     m.innerHTML = `<div class="modal" style="max-height:80vh;overflow-y:auto;">
       <div class="modal-title">➕ AJOUTER UNE <span>MAÎTRISE</span></div>
       <button class="modal-close" onclick="closeModal('addMaitriseModal')">✕ FERMER</button>
-      <div class="field-group"><label>Nom de la maîtrise</label><input type="text" id="newQuestName" placeholder="ex: Hygiène et sécurité alimentaire" maxlength="60"></div>
+      <div class="field-group"><label>Nom de la maîtrise</label><input type="text" id="newQuestName" placeholder="Hygiène et sécurité alimentaire" maxlength="60"></div>
       <div class="field-group"><label>Emoji</label><input type="text" id="newQuestIcon" placeholder="🔧" maxlength="4" style="width:60px;"></div>
       <div class="field-group"><label>Durée estimée</label>
         <select id="newQuestDuration" style="background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;width:100%;outline:none;">
