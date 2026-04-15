@@ -23,6 +23,71 @@
     --xp-bar: #001a2e;
   }
 
+  /* THÈME DARK */
+  [data-theme="dark"] {
+    --bg: #000000;
+    --panel: #0a0a0a;
+    --panel2: #111111;
+    --border: #1a1a1a;
+    --accent: #00c8ff;
+    --accent2: #ff6b00;
+    --accent3: #00ff88;
+    --gold: #ffd700;
+    --purple: #a855f7;
+    --red: #ff4444;
+    --text: #e0e0e0;
+    --muted: #555555;
+    --xp-bar: #0a0a0a;
+  }
+
+  /* THÈME LIGHT */
+  [data-theme="light"] {
+    --bg: #f0f4f8;
+    --panel: #ffffff;
+    --panel2: #e8eef5;
+    --border: #c0d0e0;
+    --accent: #0077aa;
+    --accent2: #e05a00;
+    --accent3: #007744;
+    --gold: #aa7700;
+    --purple: #7733cc;
+    --red: #cc2222;
+    --text: #1a2a3a;
+    --muted: #6688aa;
+    --xp-bar: #dce6f0;
+  }
+  [data-theme="light"] body { color: var(--text); }
+  [data-theme="light"] .scanlines { opacity:0.3; }
+
+  /* Textes hardcodés en blanc → couleur texte du thème */
+  [data-theme="light"] .player-info h2,
+  [data-theme="light"] .header h1,
+  [data-theme="light"] .modal-title,
+  [data-theme="light"] .quest-name,
+  [data-theme="light"] .grade-card .g-title,
+  [data-theme="light"] .auth-overlay h2,
+  [data-theme="light"] .tuto-panel,
+  [data-theme="light"] .admin-panel-title { color: var(--text) !important; }
+
+  /* Fond des panneaux */
+  [data-theme="light"] .player-card,
+  [data-theme="light"] .admin-panel,
+  [data-theme="light"] .modal,
+  [data-theme="light"] .quest-block,
+  [data-theme="light"] .tab-panel { background: var(--panel); }
+
+  /* Barre XP */
+  [data-theme="light"] .xp-bar-wrap { background: var(--xp-bar); }
+
+  /* Header */
+  [data-theme="light"] .header { background: linear-gradient(135deg, #e0eaf5, #f0f4f8); }
+
+  /* Boutons header */
+  [data-theme="light"] .hdr-btn-logout { border-color: var(--red); color: var(--red); }
+
+  /* Scanlines moins visibles */
+  [data-theme="light"] .scanlines { background: repeating-linear-gradient(0deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 2px); }
+
   * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
@@ -281,7 +346,14 @@
   .module-toggle.inactive { border-color:var(--muted);color:var(--muted);background:transparent; }
 
 
-  /* BADGE PROFIL VÉRIFIÉ */
+  /* BADGE AUTOÉVALUÉ */
+  .badge-autoevalue {
+    font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px;
+    color:#ff6b00; border:1px solid #ff6b00; padding:3px 9px;
+    display:inline-flex; align-items:center; gap:4px; margin-top:3px;
+    background:rgba(255,107,0,0.08); box-shadow:0 0 6px rgba(255,107,0,0.15);
+    border-radius:2px;
+  }
   .badge-verified { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px;
     color:#00c8ff; border:1px solid #00c8ff; padding:2px 8px; display:inline-flex;
     align-items:center; gap:4px; margin-top:3px; background:rgba(0,200,255,0.08);
@@ -299,6 +371,85 @@
   .verify-file-item { display:flex; align-items:center; gap:8px; padding:5px 8px;
     background:var(--bg); border:1px solid var(--border); margin-top:4px;
     font-family:'Share Tech Mono',monospace; font-size:9px; }
+
+
+  /* ═══════════════════════════════════════════════
+     TUTORIEL
+  ═══════════════════════════════════════════════ */
+  .tuto-overlay {
+    display:none; position:fixed; inset:0; z-index:800;
+    pointer-events:none;
+  }
+  .tuto-overlay.active { display:block; }
+
+  /* Fond sombre avec trou pour l'élément ciblé */
+  .tuto-backdrop {
+    position:fixed; inset:0; background:rgba(0,0,0,0.65);
+    z-index:801; pointer-events:all;
+  }
+
+  /* Bulle de highlight autour de l'élément */
+  .tuto-highlight {
+    position:fixed; z-index:802; pointer-events:none;
+    border:2px solid var(--accent);
+    box-shadow:0 0 0 4px rgba(0,200,255,0.15), 0 0 20px rgba(0,200,255,0.3);
+    border-radius:4px; transition:all 0.3s ease;
+    animation:tuto-pulse 1.5s infinite;
+  }
+  @keyframes tuto-pulse {
+    0%,100% { box-shadow:0 0 0 4px rgba(0,200,255,0.15), 0 0 20px rgba(0,200,255,0.3); }
+    50% { box-shadow:0 0 0 8px rgba(0,200,255,0.08), 0 0 30px rgba(0,200,255,0.5); }
+  }
+
+  /* Panneau explicatif en bas */
+  .tuto-panel {
+    position:fixed; bottom:0; left:0; right:0; z-index:803;
+    background:var(--panel);
+    border-top:2px solid var(--accent);
+    padding:16px 20px 20px;
+    pointer-events:all;
+    animation:slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform:translateY(100%); }
+    to   { transform:translateY(0); }
+  }
+  .tuto-step-label {
+    font-family:'Share Tech Mono',monospace; font-size:8px;
+    color:var(--muted); letter-spacing:3px; margin-bottom:6px;
+  }
+  .tuto-title {
+    font-family:'Orbitron',monospace; font-size:12px;
+    color:var(--accent); margin-bottom:8px;
+  }
+  .tuto-text {
+    font-family:'Share Tech Mono',monospace; font-size:11px;
+    color:var(--text); line-height:1.7; margin-bottom:14px;
+  }
+  .tuto-actions {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .tuto-btn-next {
+    flex:1; padding:10px; background:rgba(0,200,255,0.08);
+    border:1px solid var(--accent); color:var(--accent);
+    font-family:'Orbitron',monospace; font-size:10px;
+    letter-spacing:2px; cursor:pointer;
+  }
+  .tuto-btn-skip {
+    padding:10px 14px; background:transparent;
+    border:1px solid var(--border); color:var(--muted);
+    font-family:'Share Tech Mono',monospace; font-size:9px;
+    cursor:pointer;
+  }
+  .tuto-progress {
+    display:flex; gap:4px; align-items:center;
+  }
+  .tuto-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:var(--border); transition:background 0.2s;
+  }
+  .tuto-dot.active { background:var(--accent); }
+  .tuto-dot.done { background:var(--accent3); }
 
 </style>
 </head>
@@ -401,7 +552,7 @@
 
 <div class="header" style="position:relative;">
   <div id="codexClock" style="
-    position:absolute;top:6px;left:8px;
+    position:absolute;top:6px;left:56px;
     font-family:'Share Tech Mono',monospace;font-size:8px;
     color:var(--accent);letter-spacing:1px;line-height:1.4;
     border:1px solid rgba(0,200,255,0.2);padding:2px 6px;
@@ -451,7 +602,7 @@
   </div>
   <div class="player-info">
     <h2 id="playerName">DYLAN</h2>
-    <div class="player-grade" id="gradeDisplay">⚙️ OPÉRATEUR/RÉGLEUR PRESSE</div>
+    <div class="player-grade" id="gradeDisplay"></div>
     <div id="roleBadgeArea"></div>
     <div class="xp-section">
       <label id="xpLabel">XP : 0 / 500</label>
@@ -665,13 +816,16 @@
     <button class="modal-close" onclick="closeModal('profileModal')">✕ FERMER</button>
 
     <div style="text-align:center;margin-bottom:14px;">
-      <div id="avatarUploadArea" class="avatar-upload-area" style="margin-bottom:10px;">
+      <div id="avatarUploadArea" style="width:90px;height:90px;border:2px dashed var(--border);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 10px;overflow:hidden;">
         <div id="avatarPreviewWrap">
           <div class="upload-icon">📷</div>
-          <div class="upload-label">PHOTO DE<br>PROFIL</div>
+          <div class="upload-label">PHOTO</div>
         </div>
       </div>
-      <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+      <div class="verify-dropzone" style="padding:8px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;">📷 Choisir une photo de profil</div>
+        <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)" style="width:100%;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">
+      </div>
     </div>
 
     <div class="field-group">
@@ -698,10 +852,9 @@
       </div>
     </div>
     <button class="modal-save" onclick="saveProfile()">▶ ENREGISTRER LE PROFIL</button>
+    <div id="profileOrgHistory" style="margin-top:14px;"></div>
   </div>
 </div>
-
-<!-- MODAL GÉRER ONGLETS MÉTIER -->
 <div class="modal-bg" id="addSkillModal">
   <div class="modal">
     <div class="modal-title">ONGLETS <span>MÉTIER</span></div>
@@ -994,7 +1147,38 @@
 </div>
 
 
-<!-- MODAL VÉRIFICATION PARCOURS -->
+<!-- MODAL BOUTIQUE -->
+<div class="modal-bg" id="shopModal" style="z-index:320;">
+  <div class="modal" style="max-width:360px;text-align:center;">
+    <div class="modal-title">☕ <span>BOUTIQUE</span></div>
+    <button class="modal-close" onclick="closeModal('shopModal')">✕ FERMER</button>
+
+    <div style="font-size:48px;margin:16px 0 8px;">☕</div>
+    <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);margin-bottom:8px;">
+      Offrir un café au développeur
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;margin-bottom:20px;">
+      CODEX INDUSTRIEL est développé de manière indépendante.<br>
+      Si l'outil te plaît, tu peux soutenir son développement<br>
+      en offrant un café. Merci ! ☕
+    </div>
+
+    <a href="https://LIEN_PAIEMENT_PLACEHOLDER" target="_blank" rel="noopener"
+      style="display:block;width:100%;padding:14px;background:rgba(255,215,0,0.08);
+      border:1px solid var(--gold);color:var(--gold);
+      font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;
+      cursor:pointer;text-decoration:none;box-sizing:border-box;
+      transition:background 0.2s;"
+      onmouseenter="this.style.background='rgba(255,215,0,0.16)'"
+      onmouseleave="this.style.background='rgba(255,215,0,0.08)'">
+      ☕ OFFRIR UN CAFÉ — 2€
+    </a>
+
+    <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);margin-top:12px;">
+      Paiement sécurisé · Aucun abonnement
+    </div>
+  </div>
+</div>
 <div class="modal-bg" id="verifyModal" style="z-index:320;">
   <div class="modal" style="max-width:480px;">
     <div class="modal-title">🔍 VÉRIFICATION <span>DE PARCOURS</span></div>
@@ -1047,6 +1231,88 @@
       <div style="font-size:32px;margin-bottom:12px;">✅</div>
       <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--accent3);margin-bottom:8px;">PROFIL VÉRIFIÉ</div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">Ton parcours a été validé par l'administrateur.<br>Le badge ✓ PROFIL VÉRIFIÉ est visible sur ton profil.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════ MENU HAMBURGER ════ -->
+<div id="hamburgerMenu" style="display:none;position:fixed;top:10px;left:10px;z-index:600;">
+  <button onclick="toggleHamburger()" id="hamburgerBtn"
+    style="background:rgba(0,200,255,0.06);border:1px solid var(--accent);color:var(--accent);
+    font-size:16px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+    ☰
+  </button>
+  <div id="hamburgerDropdown" style="display:none;position:absolute;top:42px;left:0;
+    background:var(--panel);border:1px solid var(--accent);min-width:180px;z-index:601;">
+    <button onclick="launchTutorial();toggleHamburger()"
+      style="width:100%;padding:12px 16px;background:transparent;border:none;border-bottom:1px solid var(--border);
+      color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;text-align:left;
+      letter-spacing:1px;" onmouseenter="this.style.background='rgba(0,200,255,0.06)'" onmouseleave="this.style.background='transparent'">
+      🎓 TUTORIEL
+    </button>
+    <button onclick="openModal('profileModal');toggleHamburger()"
+      style="width:100%;padding:12px 16px;background:transparent;border:none;border-bottom:1px solid var(--border);
+      color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;text-align:left;
+      letter-spacing:1px;" onmouseenter="this.style.background='rgba(0,200,255,0.06)'" onmouseleave="this.style.background='transparent'">
+      👤 MON PROFIL
+    </button>
+    <button onclick="openModal('cguModal');toggleHamburger()"
+      style="width:100%;padding:12px 16px;background:transparent;border:none;border-bottom:1px solid var(--border);
+      color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;text-align:left;
+      letter-spacing:1px;" onmouseenter="this.style.background='rgba(0,200,255,0.06)'" onmouseleave="this.style.background='transparent'">
+      📋 CGU
+    </button>
+    <div style="position:relative;">
+      <button onclick="toggleThemeSubmenu()"
+        style="width:100%;padding:12px 16px;background:transparent;border:none;border-bottom:1px solid var(--border);
+        color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;text-align:left;
+        letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;"
+        onmouseenter="this.style.background='rgba(0,200,255,0.06)'" onmouseleave="this.style.background='transparent'">
+        <span>🎨 THÈMES</span><span id="themeArrow">▸</span>
+      </button>
+      <div id="themeSubmenu" style="display:none;background:var(--panel);border-bottom:1px solid var(--border);">
+        <button onclick="setTheme('classic');toggleHamburger()"
+          style="width:100%;padding:9px 24px;background:transparent;border:none;border-bottom:1px solid var(--border);
+          color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;text-align:left;"
+          onmouseenter="this.style.background='rgba(0,200,255,0.06)'" onmouseleave="this.style.background='transparent'">
+          🔵 Classic
+        </button>
+        <button onclick="setTheme('dark');toggleHamburger()"
+          style="width:100%;padding:9px 24px;background:transparent;border:none;border-bottom:1px solid var(--border);
+          color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;text-align:left;"
+          onmouseenter="this.style.background='rgba(0,0,0,0.2)'" onmouseleave="this.style.background='transparent'">
+          ⚫ Dark
+        </button>
+        <button onclick="setTheme('light');toggleHamburger()"
+          style="width:100%;padding:9px 24px;background:transparent;border:none;
+          color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:9px;cursor:pointer;text-align:left;"
+          onmouseenter="this.style.background='rgba(255,255,255,0.1)'" onmouseleave="this.style.background='transparent'">
+          ⚪ Light
+        </button>
+      </div>
+    </div>
+    <button onclick="openShop();toggleHamburger()"
+      style="width:100%;padding:12px 16px;background:transparent;border:none;
+      color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer;text-align:left;
+      letter-spacing:1px;" onmouseenter="this.style.background='rgba(255,215,0,0.06)'" onmouseleave="this.style.background='transparent'">
+      ☕ BOUTIQUE
+    </button>
+  </div>
+</div>
+
+<!-- ════ OVERLAY TUTORIEL ════ -->
+<div class="tuto-overlay" id="tutoOverlay">
+  <div class="tuto-backdrop" onclick="skipTutorial()"></div>
+  <div class="tuto-highlight" id="tutoHighlight"></div>
+  <div class="tuto-panel">
+    <div class="tuto-step-label">ÉTAPE <span id="tutoStepNum">1</span> / <span id="tutoStepTotal">10</span></div>
+    <div class="tuto-title" id="tutoTitle"></div>
+    <div class="tuto-text" id="tutoText"></div>
+    <div class="tuto-actions">
+      <div class="tuto-progress" id="tutoProgress"></div>
+      <button class="tuto-btn-skip" onclick="skipTutorial()">✕ Passer</button>
+      <button class="tuto-btn-next" onclick="tutoNext()" id="tutoBtnNext">SUIVANT ▶</button>
     </div>
   </div>
 </div>
@@ -1915,9 +2181,9 @@ function updateUI() {
   const pct = nextLvl.xp > lvl.xp ? Math.round(((xp-lvl.xp)/(nextLvl.xp-lvl.xp))*100) : 100;
 
   document.getElementById('levelNum').textContent = lvl.lvl;
-  // Affiche le titre actif choisi, sinon le grade automatique
-  const activeTitle = state.activeTitle || grade;
-  document.getElementById('gradeDisplay').textContent = activeTitle.icon + ' ' + activeTitle.title.toUpperCase();
+  // Affiche le titre actif seulement si la condition est remplie
+  const activeTitle = state.activeTitle || (checkGradeCondition(grade.condition) ? grade : null);
+  document.getElementById('gradeDisplay').textContent = activeTitle ? activeTitle.icon + ' ' + activeTitle.title.toUpperCase() : '';
   document.getElementById('xpLabel').textContent = `XP vers niveau ${lvl.lvl+1} : ${xp-lvl.xp} / ${nextLvl.xp-lvl.xp}`;
   document.getElementById('xpBar').style.width = pct+'%';
   document.getElementById('totalXpDisplay').textContent = 'Total : '+xp+' XP cumulés';
@@ -2035,13 +2301,16 @@ function toggleMS(questId, idx, xpVal, el) {
   const db = getDB();
 
   if (!managerId || !db[managerId]) {
-    // Pas de manager → validation directe
+    // Pas de manager → validation directe (autoévaluation)
     state.done[key] = true;
     showXPPopup(xpVal, el);
     const tabKey = Object.keys(QUEST_DATA).find(k => QUEST_DATA[k].some(q => q.id === questId));
     renderTab(tabKey);
     updateUI();
     saveProgress();
+    // Rafraîchir le badge autoévalué immédiatement sans déconnexion
+    const curSession = getSession();
+    if (curSession) renderRoleBadge(db[curSession.uid] || curSession);
     return;
   }
 
@@ -2563,7 +2832,7 @@ function doRegister(fromOverlay) {
     createdAt: new Date().toISOString(),
     role: 'user',
     orgId: null,       // LIBRE — pas rattaché à une organisation
-    isVisible: true,   // Visible sur le marché des talents par défaut
+    isVisible: true,   // DISPONIBLE sur le marché des talents par défaut
   };
   db[uid] = user;
   saveDB(db);
@@ -2579,6 +2848,49 @@ function showAuthErr(el, msg) {
   el.textContent = msg;
   el.style.display = 'block';
   setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// ═══════════════════════════════════════════════
+// DÉCONNEXION AUTOMATIQUE — 1h d'inactivité
+// ═══════════════════════════════════════════════
+const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes en ms
+let _inactivityTimer = null;
+let _warningTimer = null;
+
+function resetInactivityTimer() {
+  clearTimeout(_inactivityTimer);
+  clearTimeout(_warningTimer);
+
+  // Avertissement 2 minutes avant
+  _warningTimer = setTimeout(() => {
+    const session = getSession();
+    if (!session) return;
+    showToast('⚠️ Déconnexion dans 2 minutes pour inactivité');
+  }, INACTIVITY_LIMIT - 2 * 60 * 1000);
+
+  // Déconnexion automatique
+  _inactivityTimer = setTimeout(() => {
+    const session = getSession();
+    if (!session) return;
+    doLogout();
+    showToast('⏻ Déconnecté automatiquement après 30min d\'inactivité');
+  }, INACTIVITY_LIMIT);
+}
+
+function startInactivityWatcher() {
+  // Réinitialiser le timer sur toute interaction
+  ['click','touchstart','keydown','scroll','mousemove'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+}
+
+function stopInactivityWatcher() {
+  clearTimeout(_inactivityTimer);
+  clearTimeout(_warningTimer);
+  ['click','touchstart','keydown','scroll','mousemove'].forEach(evt => {
+    document.removeEventListener(evt, resetInactivityTimer);
+  });
 }
 
 function doLogout() {
@@ -2614,12 +2926,24 @@ function onLoginSuccess(user) {
   // Appliquer la vue admin si nécessaire
   applyAdminView(user);
   renderHeaderActions(true);
+  // Démarrer le watcher d'inactivité
+  startInactivityWatcher();
+  // Afficher le menu hamburger
+  const hamburger = document.getElementById('hamburgerMenu');
+  if (hamburger) hamburger.style.display = 'block';
   // Missions et notifications
   setTimeout(() => { renderMissions(); renderObjectifs(); renderNotifBadge(); updateRequestsBadge(); }, 100);
+  // Lancer le tutoriel si première connexion pour ce rôle
+  setTimeout(() => checkAndLaunchTutorial(user), 900);
   showToast('✓ CONNECTÉ — ' + displayName.toUpperCase());
 }
 
 function onLogoutSuccess() {
+  // Masquer le menu hamburger
+  const hamburger = document.getElementById('hamburgerMenu');
+  if (hamburger) hamburger.style.display = 'none';
+  // Arrêter le watcher d'inactivité
+  stopInactivityWatcher();
   // Sauvegarder avant de partir
   try { localStorage.setItem(getUserKey(), JSON.stringify(state)); } catch(e) {}
   // Désenregistrer la session
@@ -2669,8 +2993,11 @@ function renderHeaderActions(loggedIn) {
 
     // Tous les rôles ont les mêmes boutons de base
     // Seuls les utilisateurs non-admin ont le bouton vérification
+    // Bouton vérification visible pour tous sauf admin général pur
+    const isGeneralAdmin = user && user.role === 'admin';
+
     div.innerHTML = `
-      ${!isAdmin ? `<button class="${verifyBtnClass}" onclick="openVerifyModal()">${verifyBtnLabel}</button>` : ''}
+      ${!isGeneralAdmin ? `<button id="verifyBtn" class="${verifyBtnClass}" onclick="openVerifyModal()">${verifyBtnLabel}</button>` : ''}
       <button class="hdr-btn hdr-btn-mgmt" id="notifHeaderBtn" onclick="toggleNotifPanel()" style="position:relative;">
         🔔 NOTIFICATIONS
         <span id="notifBadge" class="notif-badge hidden" style="position:absolute;top:-6px;right:-6px;">0</span>
@@ -2989,11 +3316,12 @@ function initAuth() {
   (function bootstrapAdmins() {
     const db = getDB();
 
-    // ── Compte permanent : Adminus25 ──────────────
-    const adminKey = 'permanent_adminus25';
-    if (!db[adminKey]) {
-      db[adminKey] = {
-        uid: adminKey,
+    // ── Adminus25 — Admin Général permanent ───────
+    // Rôle 'admin' préservé — accessible via codex-admin.html uniquement
+    // applyAdminView masque l'interface utilisateur pour ce rôle
+    if (!db['permanent_adminus25']) {
+      db['permanent_adminus25'] = {
+        uid: 'permanent_adminus25',
         name: 'Administrateur Système',
         email: 'adminus25@codex.internal',
         pseudo: 'Adminus25',
@@ -3002,13 +3330,11 @@ function initAuth() {
         createdAt: new Date().toISOString(),
       };
     } else {
-      // Garantit toujours le rôle admin même si modifié
-      db[adminKey].role = 'admin';
-      db[adminKey].pwdHash = simpleHash('Carotte45');
+      db['permanent_adminus25'].role = 'admin';
+      db['permanent_adminus25'].pwdHash = simpleHash('Carotte45');
     }
 
-    // ── Thomas → admin_local (phase développement) ───────────────
-    // À retirer en production quand les comptes seront gérés via codex-admin.html
+    // ── Thomas → admin_local (phase développement) ───
     const thomas = Object.values(db).find(u =>
       (u.email && u.email.toLowerCase() === 'dj.tom@gmail.com') ||
       (u.pseudo && u.pseudo.toLowerCase() === 'thomas')
@@ -3016,13 +3342,6 @@ function initAuth() {
     if (thomas && thomas.role !== 'admin_local') {
       thomas.role = 'admin_local';
       db[thomas.uid] = thomas;
-    }
-
-    // ── Adminus25 reste admin_local ici — son vrai rôle est admin dans codex-admin.html
-    // Sur parcours-rpg-v2.html, Adminus25 n'est pas accessible (rôle admin masqué)
-    if (db['permanent_adminus25']) {
-      // Ne pas exposer Adminus25 sur cette interface
-      db['permanent_adminus25'].role = 'admin_local';
     }
 
     saveDB(db);
@@ -3045,11 +3364,11 @@ function initAuth() {
 
 renderTabBar();
 initAuth();
+loadSavedTheme();
 // ═══════════════════════════════════════════════
 // PROFILE MODAL
 // ═══════════════════════════════════════════════
 function openProfileModal() {
-  // Pre-fill saved values
   const p = state.profile || {};
   document.getElementById('fieldPseudo').value = p.pseudo || '';
   document.getElementById('fieldEmail').value = p.email || '';
@@ -3059,6 +3378,10 @@ function openProfileModal() {
     const wrap = document.getElementById('avatarUploadArea');
     wrap.innerHTML = `<img src="${p.avatarSrc}" class="avatar-img">`;
   }
+  // Historique organisations de l'utilisateur connecté
+  const session = getSession();
+  const histEl = document.getElementById('profileOrgHistory');
+  if (histEl && session) histEl.innerHTML = orgHistoryWidget(session.uid);
   document.getElementById('profileModal').classList.add('open');
 }
 
@@ -3362,6 +3685,7 @@ function openMemberProfile(uid) {
     ${domainsHtml}
     <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin:12px 0 8px;">MAÎTRISES COMPLÉTÉES (${mastered.length})</div>
     ${mastered.length ? mastered.map(n=>`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);padding:4px 0;border-bottom:1px solid var(--border);">★ ${n}</div>`).join('') : '<div style="font-family:Share Tech Mono,monospace;font-size:9px;color:var(--muted);">Aucune maîtrise complétée</div>'}
+    ${orgHistoryWidget(uid)}
   `;
 
   closeModal('mgmtModal');
@@ -3382,14 +3706,63 @@ function saveAffiliations(a) {
 function setUserRole(uid, role) {
   const db = getDB();
   if (!db[uid]) return;
+
+  const session = getSession();
+  const currentUser = session ? db[session.uid] : null;
+  const targetUser = db[uid];
+
+  // Hiérarchie des rôles
+  const rankOf = { user:0, manager:1, admin_local:2, admin:3 };
+
+  // Un admin local ne peut pas modifier un compte de rang >= au sien
+  if (currentUser && currentUser.role === 'admin_local') {
+    if (rankOf[targetUser.role] >= rankOf['admin_local']) {
+      showToast('⚠ ACTION INTERDITE — Rang insuffisant');
+      renderAdminPanel();
+      return;
+    }
+    // Ne peut pas non plus attribuer un rang >= admin_local
+    if (rankOf[role] >= rankOf['admin_local']) {
+      showToast('⚠ ACTION INTERDITE — Tu ne peux pas attribuer ce rôle');
+      renderAdminPanel();
+      return;
+    }
+  }
+
+  // Protéger Adminus25 — jamais modifiable depuis parcours-rpg
+  if (uid === 'permanent_adminus25') {
+    showToast('⚠ Ce compte est protégé');
+    renderAdminPanel();
+    return;
+  }
+
+  // Un utilisateur sans organisation ne peut pas être manager
+  if (role === 'manager' && !db[uid].orgId) {
+    showToast('⚠ Un utilisateur doit appartenir à une organisation pour être manager');
+    renderAdminPanel();
+    return;
+  }
+
   db[uid].role = role;
   saveDB(db);
-  // Si on change le rôle de l'utilisateur courant, mettre à jour la session
-  const session = getSession();
+  // Si on rétrograde vers 'user' un manager dans une org → nettoyer ses affiliations
+  if (role === 'user') {
+    const affils = getAffiliations();
+    // Retirer ses affiliés s'il était manager
+    let changed = false;
+    Object.keys(affils).forEach(k => { if (affils[k] === uid) { delete affils[k]; changed = true; } });
+    if (changed) saveAffiliations(affils);
+  }
   if (session && session.uid === uid) {
     session.role = role;
     saveSession(session);
+    // Lancer le tutoriel si nouveau rôle avec tutoriel disponible
+    if (TUTORIALS[role]) {
+      const done = getTutoDone();
+      if (!done[role]) setTimeout(() => launchTutorial(role), 600);
+    }
   }
+  showToast('✓ RÔLE MIS À JOUR');
 }
 
 function renderRoleBadge(user) {
@@ -3415,16 +3788,16 @@ function renderRoleBadge(user) {
     const isVisible = user.isVisible !== false;
     html += `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap;">
       <span class="status-libre">◎ LIBRE</span>
-      <button onclick="toggleMarketVisibility()" class="invisible-toggle" style="font-size:8px;padding:2px 6px;">
-        ${isVisible ? '👁 Visible' : '🔒 Invisible'}
+      <button onclick="toggleMarketVisibility()" style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 8px;cursor:pointer;border:1px solid ${isVisible?'#00ff88':'var(--muted)'};color:${isVisible?'#00ff88':'var(--muted)'};background:${isVisible?'rgba(0,255,136,0.08)':'transparent'};">
+        ${isVisible ? '✅ DISPONIBLE' : '○ INDISPONIBLE'}
       </button>
     </div>`;
   } else {
     const isVisible = user.isVisible !== false;
     html += `<div style="display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap;">
       <span class="status-org">🏢 ${status.label}</span>
-      <button onclick="toggleMarketVisibility()" class="invisible-toggle" style="font-size:8px;padding:2px 6px;" title="Apparaître sur le marché des talents sans quitter l'org">
-        ${isVisible ? '🔍 Sur le marché' : '🔒 Hors marché'}
+      <button onclick="toggleMarketVisibility()" style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 8px;cursor:pointer;border:1px solid ${isVisible?'#00ff88':'var(--muted)'};color:${isVisible?'#00ff88':'var(--muted)'};background:${isVisible?'rgba(0,255,136,0.08)':'transparent'};" title="${isVisible?'Te rendre indisponible sur le marché':'Te rendre disponible sur le marché'}">
+        ${isVisible ? '✅ DISPONIBLE' : '○ INDISPONIBLE'}
       </button>
       <button onclick="leaveOrganisation()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:8px;cursor:pointer;padding:2px 6px;" title="Quitter l'organisation et redevenir Libre">✕ Quitter</button>
     </div>`;
@@ -3603,8 +3976,35 @@ function saveSessions(s) {
 }
 function registerSession(user) {
   const sessions = getSessions();
-  sessions[user.uid] = { uid:user.uid, pseudo:user.pseudo, role:user.role, loginAt:new Date().toISOString() };
+  const entry = { uid:user.uid, pseudo:user.pseudo, role:user.role, loginAt:new Date().toISOString(), ip: null };
+  sessions[user.uid] = entry;
   saveSessions(sessions);
+
+  // Capturer l'IP publique via API externe
+  fetch('https://api.ipify.org?format=json')
+    .then(r => r.json())
+    .then(data => {
+      const s = getSessions();
+      if (s[user.uid]) {
+        s[user.uid].ip = data.ip;
+        saveSessions(s);
+        // Aussi stocker l'IP dans le profil utilisateur pour historique
+        const db = getDB();
+        if (db[user.uid]) {
+          if (!db[user.uid].ipHistory) db[user.uid].ipHistory = [];
+          const ipEntry = { ip: data.ip, date: new Date().toISOString() };
+          // Eviter les doublons consécutifs
+          const last = db[user.uid].ipHistory[0];
+          if (!last || last.ip !== data.ip) {
+            db[user.uid].ipHistory.unshift(ipEntry);
+            db[user.uid].ipHistory = db[user.uid].ipHistory.slice(0, 10); // garder 10 entrées max
+            db[user.uid].lastIp = data.ip;
+            saveDB(db);
+          }
+        }
+      }
+    })
+    .catch(() => {}); // Silencieux si l'API est inaccessible
 }
 function unregisterSession(uid) {
   const sessions = getSessions();
@@ -3651,26 +4051,51 @@ function renderAdminPanel() {
   const roleLabels = { user:'UTILISATEUR', manager:'MANAGER', admin_local:'ADMIN LOCAL', admin:'ADMIN GÉNÉRAL' };
   const roleColors = { user:'var(--muted)', manager:'#ff4444', admin_local:'#00ff88', admin:'#00c8ff' };
 
+  const rankOf = { user:0, manager:1, admin_local:2, admin:3 };
+  const currentRole = session ? (getDB()[session.uid]?.role || 'user') : 'user';
+  const isAdminLocal = currentRole === 'admin_local';
+
+  // Récupérer l'orgId de l'admin local
+  const adminUser = session ? db[session.uid] : null;
+  const adminOrgId = adminUser?.orgId || null;
+
   // ── Liste utilisateurs condensée ──────────────────────────────────
   const listEl = document.getElementById('adminUserList');
   if (listEl) {
-    if (!users.length) {
-      listEl.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--muted);padding:8px;">Aucun utilisateur</div>';
+    // Admin local → uniquement les membres de son organisation (rang inférieur)
+    // Admin général → tous les utilisateurs
+    const visibleUsers = isAdminLocal
+      ? users.filter(u =>
+          rankOf[u.role] < rankOf['admin_local'] &&
+          u.orgId && u.orgId === adminOrgId
+        )
+      : users;
+
+    if (!visibleUsers.length) {
+      const msg = isAdminLocal && !adminOrgId
+        ? 'Aucune organisation configurée — crée ton organisation dans l\'onglet ORGANISATION'
+        : isAdminLocal
+          ? 'Aucun membre dans ton organisation pour l\'instant'
+          : 'Aucun utilisateur';
+      listEl.innerHTML = `<div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--muted);padding:12px;text-align:center;">${msg}</div>`;
     } else {
-      // Barre de recherche + compteur
       listEl.innerHTML = `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
           <input type="text" id="adminSearchInput" placeholder="Rechercher un pseudo..." oninput="filterAdminList()" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:10px;padding:6px 8px;outline:none;">
-          <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);white-space:nowrap;">${users.length} compte${users.length>1?'s':''}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);white-space:nowrap;">${visibleUsers.length} compte${visibleUsers.length>1?'s':''}</span>
         </div>
         <div id="adminUserListInner" style="max-height:40vh;overflow-y:auto;border:1px solid var(--border);">
-          ${users.map(u => {
+          ${visibleUsers.map(u => {
             const isSelf = session && u.uid === session.uid;
             const roleCol = roleColors[u.role] || 'var(--muted)';
             const roleLabel = roleLabels[u.role] || u.role.toUpperCase();
             const mgrUid = affils[u.uid];
             const mgr = mgrUid ? db[mgrUid] : null;
-            const roleOptions = ['user','manager','admin_local','admin'].map(r =>
+            // Admin local peut seulement attribuer user et manager
+            const allowedRoles = isAdminLocal
+              ? ['user','manager']
+              : ['user','manager','admin_local','admin'];
+            const roleOptions = allowedRoles.map(r =>
               `<option value="${r}" ${u.role===r?'selected':''}>${roleLabels[r]||r.toUpperCase()}</option>`
             ).join('');
 
@@ -3702,8 +4127,13 @@ function renderAdminPanel() {
   }
 
   // ── Sélecteurs d'affiliation ───────────────────────────────────────
-  const managers = users.filter(u => u.role === 'manager' || u.role === 'admin_local' || u.role === 'admin');
-  const regularUsers = users.filter(u => u.role === 'user');
+  // Admin local → uniquement les membres de son org
+  const orgFilter = isAdminLocal ? (u => u.orgId === adminOrgId) : () => true;
+
+  const managers = users.filter(u =>
+    (u.role === 'manager' || u.role === 'admin_local') && orgFilter(u)
+  );
+  const regularUsers = users.filter(u => u.role === 'user' && orgFilter(u));
 
   const selUser = document.getElementById('affilUser');
   const selMgr = document.getElementById('affilManager');
@@ -3716,10 +4146,13 @@ function renderAdminPanel() {
       managers.map(u => `<option value="${u.uid}">${u.pseudo}</option>`).join('');
   }
 
-  // ── Affiliations ───────────────────────────────────────────────────
+  // ── Affiliations — uniquement celles de l'org ──────────────────────
   const affilEl = document.getElementById('adminAffilList');
   if (affilEl) {
-    const entries = Object.entries(affils);
+    const entries = Object.entries(affils).filter(([uid, mgrUid]) => {
+      if (!isAdminLocal) return true;
+      return db[uid]?.orgId === adminOrgId;
+    });
     if (!entries.length) {
       affilEl.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:9px;color:var(--muted);padding:6px;">Aucune affiliation définie</div>';
     } else {
@@ -3751,6 +4184,16 @@ function doAffiliation() {
   const uid = document.getElementById('affilUser').value;
   const mgrUid = document.getElementById('affilManager').value;
   if (!uid || !mgrUid) { showToast('⚠ SÉLECTIONNE UN UTILISATEUR ET UN MANAGER'); return; }
+  const db = getDB();
+  const targetUser = db[uid];
+  const managerUser = db[mgrUid];
+  // Vérifier que les deux sont dans la même organisation
+  if (!targetUser?.orgId || !managerUser?.orgId) {
+    showToast('⚠ Les deux utilisateurs doivent appartenir à une organisation'); return;
+  }
+  if (targetUser.orgId !== managerUser.orgId) {
+    showToast('⚠ Les deux utilisateurs doivent être dans la même organisation'); return;
+  }
   const affils = getAffiliations();
   affils[uid] = mgrUid;
   saveAffiliations(affils);
@@ -4094,15 +4537,35 @@ function renderNotifList() {
     el.innerHTML = '<div style="font-family:Share Tech Mono,monospace;font-size:10px;color:var(--muted);text-align:center;padding:24px 16px;letter-spacing:1px;">Aucune notification</div>';
     return;
   }
-  el.innerHTML = notifs.slice(0, 30).map((n, idx) => `
-    <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);${!n.read ? 'border-left:2px solid '+(n.type==='mission'||n.type==='validation_request'?'#ff6b00':'var(--accent)')+';' : ''}">
-      <div style="flex:1;cursor:pointer;" onclick="handleNotifClick(${JSON.stringify(n).replace(/"/g,'&quot;')})">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${n.read?'var(--muted)':'var(--text)'};margin-bottom:3px;">${n.title}</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">${n.sub}</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,255,255,0.25);margin-top:3px;">${new Date(n.date).toLocaleString('fr-FR')}</div>
+  el.innerHTML = notifs.slice(0, 30).map((n, idx) => {
+    const isRecruit = n.type === 'recruit_request';
+    const borderColor = n.type === 'mission' || n.type === 'validation_request' ? '#ff6b00'
+                      : isRecruit ? 'var(--gold)'
+                      : 'var(--accent)';
+    const recruitButtons = isRecruit ? `
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <button onclick="handleRecruitNotif(${JSON.stringify(n).replace(/"/g,'&quot;')}, true);deleteNotif(${idx})"
+          style="flex:1;font-family:'Share Tech Mono',monospace;font-size:8px;padding:5px;border:1px solid var(--accent3);color:var(--accent3);background:rgba(0,255,136,0.06);cursor:pointer;">
+          ✓ ACCEPTER
+        </button>
+        <button onclick="handleRecruitNotif(${JSON.stringify(n).replace(/"/g,'&quot;')}, false);deleteNotif(${idx})"
+          style="flex:1;font-family:'Share Tech Mono',monospace;font-size:8px;padding:5px;border:1px solid #ff4444;color:#ff4444;background:transparent;cursor:pointer;">
+          ✕ REFUSER
+        </button>
+      </div>` : '';
+
+    return `<div style="padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.05);${!n.read ? 'border-left:2px solid '+borderColor+';' : ''}">
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <div style="flex:1;${!isRecruit ? 'cursor:pointer;' : ''}" ${!isRecruit ? `onclick="handleNotifClick(${JSON.stringify(n).replace(/"/g,'&quot;')})"` : ''}>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${n.read?'var(--muted)':'var(--text)'};margin-bottom:3px;">${n.title}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">${n.sub}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,255,255,0.25);margin-top:3px;">${new Date(n.date).toLocaleString('fr-FR')}</div>
+        </div>
+        ${!isRecruit ? `<button onclick="deleteNotif(${idx})" style="background:transparent;border:none;color:rgba(255,255,255,0.2);font-size:12px;cursor:pointer;padding:0;flex-shrink:0;margin-top:2px;" title="Supprimer">✕</button>` : ''}
       </div>
-      <button onclick="deleteNotif(${idx})" style="background:transparent;border:none;color:rgba(255,255,255,0.2);font-size:12px;cursor:pointer;padding:0;flex-shrink:0;margin-top:2px;" title="Supprimer">✕</button>
-    </div>`).join('');
+      ${recruitButtons}
+    </div>`;
+  }).join('');
 }
 
 function handleNotifClick(n) {
@@ -4438,6 +4901,94 @@ function doValidateObjectif(accept) {
 const _origRenderMgmtModal = renderMgmtModal;
 
 
+
+// ═══════════════════════════════════════════════
+// HISTORIQUE ORGANISATION PAR UTILISATEUR
+// ═══════════════════════════════════════════════
+
+function addOrgHistoryEntry(uid, orgId, orgName, action) {
+  // action = 'joined' | 'left' | 'removed' | 'dissolved'
+  const db = getDB();
+  if (!db[uid]) return;
+  if (!db[uid].orgHistory) db[uid].orgHistory = [];
+  const last = db[uid].orgHistory[0];
+  // Fermer l'entrée précédente si c'est un départ
+  if ((action === 'left' || action === 'removed' || action === 'dissolved') && last && !last.endDate) {
+    last.endDate = new Date().toISOString();
+    last.endReason = action;
+  }
+  // Ajouter une nouvelle entrée si c'est une arrivée
+  if (action === 'joined') {
+    db[uid].orgHistory.unshift({
+      orgId, orgName,
+      startDate: new Date().toISOString(),
+      endDate: null,
+      endReason: null,
+    });
+  }
+  saveDB(db);
+}
+
+function renderOrgHistory(uid) {
+  const db = getDB();
+  const user = db[uid];
+  if (!user || !user.orgHistory || !user.orgHistory.length) {
+    return '<div style="font-family:Share Tech Mono,monospace;font-size:9px;color:var(--muted);padding:8px;">Aucun historique d\'organisation</div>';
+  }
+
+  const reasonLabel = {
+    left:      '↩ Départ volontaire',
+    removed:   '✕ Retiré par admin',
+    dissolved: '🗑 Organisation dissoute',
+  };
+
+  return user.orgHistory.map(e => {
+    const start = new Date(e.startDate).toLocaleDateString('fr-FR');
+    const end = e.endDate ? new Date(e.endDate).toLocaleDateString('fr-FR') : null;
+    const isActive = !e.endDate;
+
+    // Calculer la durée
+    const startMs = new Date(e.startDate).getTime();
+    const endMs = e.endDate ? new Date(e.endDate).getTime() : Date.now();
+    const diffDays = Math.floor((endMs - startMs) / (1000 * 60 * 60 * 24));
+    const duration = diffDays < 30
+      ? diffDays + ' jour' + (diffDays > 1 ? 's' : '')
+      : diffDays < 365
+        ? Math.floor(diffDays / 30) + ' mois'
+        : (diffDays / 365).toFixed(1) + ' an' + (diffDays >= 730 ? 's' : '');
+
+    return `<div style="padding:8px 10px;border-bottom:1px solid var(--border);border-left:3px solid ${isActive ? 'var(--accent3)' : 'var(--border)'};">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:${isActive ? '#fff' : 'var(--muted)'};">
+          🏢 ${e.orgName || e.orgId}
+        </div>
+        ${isActive ? '<span style="font-family:Share Tech Mono,monospace;font-size:7px;color:var(--accent3);border:1px solid var(--accent3);padding:1px 4px;">EN COURS</span>' : ''}
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);">
+        📅 ${start} ${end ? '→ ' + end : '→ aujourd\'hui'}
+        <span style="margin-left:8px;color:var(--gold);">⏱ ${duration}</span>
+      </div>
+      ${!isActive && e.endReason ? `<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);margin-top:2px;">${reasonLabel[e.endReason] || e.endReason}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Widget complet à injecter dans n'importe quelle vue
+function orgHistoryWidget(uid) {
+  const db = getDB();
+  const user = db[uid];
+  if (!user) return '';
+  const count = user.orgHistory ? user.orgHistory.length : 0;
+  return `<details style="margin-top:10px;">
+    <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;list-style:none;padding:6px 0;">
+      🏢 HISTORIQUE ORGANISATIONS (${count})
+    </summary>
+    <div style="margin-top:4px;background:var(--bg);border:1px solid var(--border);">
+      ${renderOrgHistory(uid)}
+    </div>
+  </details>`;
+}
+
 // ═══════════════════════════════════════════════
 // MODULE ORGANISATION & MARCHÉ DES TALENTS
 // ═══════════════════════════════════════════════
@@ -4464,10 +5015,10 @@ function saveRecruitRequests(list) {
 // ── Statut d'un utilisateur ─────────────────────
 // user.orgId = null → LIBRE
 // user.orgId = 'aperam' → membre de l'org
-// user.isVisible = true/false (marché)
+// user.isVisible = true (DISPONIBLE) / false (INDISPONIBLE)
 function getUserStatus(user) {
   // Statut affiché = nom de l'org si rattaché, sinon LIBRE
-  // Mais un membre d'org peut se remettre sur le marché (isVisible=true)
+  // Mais un membre d'org peut se remettre disponible (isVisible=true)
   // sans quitter son org — il garde le badge org ET apparaît sur le marché
   if (!user.orgId) return { type: 'libre', label: 'LIBRE' };
   const cfg = getOrgConfig();
@@ -4593,6 +5144,10 @@ function renderMarket() {
   if (!el) return;
   const filterEl = document.getElementById('marketModuleFilter');
   const filterKey = filterEl ? filterEl.value : '';
+  const session = getSession();
+  const db = getDB();
+  const adminUser = session ? db[session.uid] : null;
+  const adminOrgId = adminUser?.orgId || null;
 
   // Remplir le filtre avec les modules actifs
   if (filterEl && filterEl.options.length <= 1) {
@@ -4606,10 +5161,10 @@ function renderMarket() {
       }
     });
   }
-
-  const db = getDB();
   const freeUsers = Object.values(db).filter(u =>
-    u.role === 'user' && isVisibleOnMarket(u)
+    u.role === 'user' && isVisibleOnMarket(u) &&
+    // Admin local ne voit pas les membres d'autres orgs sur le marché
+    (!u.orgId || u.orgId !== adminOrgId)
   );
 
   if (!freeUsers.length) {
@@ -4685,16 +5240,17 @@ function renderMarket() {
     return `<div class="market-card">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
         <div style="flex:1;">
-          <div class="market-card-name">${u.pseudo} ${u.autoEval ? '<span class="badge-autoevalue">AUTOÉVALUÉ</span>' : ''}</div>
+          <div class="market-card-name">${u.pseudo} ${u.autoEval ? '<span class="badge-autoevalue">AUTOÉVALUÉ</span>' : ''} ${u.verified ? '<span class="badge-verified">VÉRIFIÉ</span>' : ''}</div>
           <div class="market-card-meta">
             ${!u.orgId
               ? '<span style="color:#a855f7;">◎ LIBRE</span>'
-              : `<span style="color:var(--gold);">🏢 ${getUserStatus(u).label}</span><span style="color:#a855f7;font-size:8px;">🔍 sur le marché</span>`
+              : `<span style="color:var(--gold);">🏢 ${getUserStatus(u).label}</span><span style="color:#00ff88;font-size:8px;">✅ Disponible</span>`
             }
             <span>Niv. ${mLvl.lvl}</span>
             <span>${mXP} XP</span>
           </div>
           <div style="margin-top:6px;">${modBars || '<span style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--muted);">Aucune compétence renseignée</span>'}</div>
+          ${orgHistoryWidget(u.uid)}
         </div>
         <div>
           ${alreadySent
@@ -4759,12 +5315,13 @@ function handleRecruitNotif(n, accept) {
   if (accept) {
     req.status = 'accepted';
     req.resolvedAt = new Date().toISOString();
-    // Rattacher l'utilisateur à l'org
     const db = getDB();
     if (db[session.uid]) {
       db[session.uid].orgId = n.orgId;
       saveDB(db);
       saveSession(db[session.uid]);
+      // Historique : arrivée dans l'org
+      addOrgHistoryEntry(session.uid, n.orgId, n.orgName, 'joined');
     }
     // Notifier l'admin
     addNotif(req.fromAdminUid, {
@@ -4797,6 +5354,47 @@ function handleRecruitNotif(n, accept) {
   renderNotifList();
 }
 
+// ── Nettoyage complet quand un utilisateur quitte une org ───────────
+// Règles : repasse user, perd ses affiliations (manager/managé)
+function cleanupOnLeaveOrg(uid, reason) {
+  reason = reason || 'left';
+  const db = getDB();
+  const user = db[uid];
+  if (!user) return;
+
+  // Historique : départ de l'org
+  if (user.orgId) {
+    const orgCfg = getOrgConfig();
+    const orgName = orgCfg ? orgCfg.name : user.orgId;
+    addOrgHistoryEntry(uid, user.orgId, orgName, reason);
+  }
+
+  // 1 — Retirer orgId et repasser en role 'user'
+  delete user.orgId;
+  user.isVisible = true;
+  if (user.role === 'manager') user.role = 'user';
+  db[uid] = user;
+
+  // 2 — Supprimer toutes ses affiliations (comme manager ou comme managé)
+  const affils = getAffiliations();
+  // Supprime si l'utilisateur était managé
+  delete affils[uid];
+  // Supprime si l'utilisateur était manager (retirer ses affiliés)
+  Object.keys(affils).forEach(k => {
+    if (affils[k] === uid) delete affils[k];
+  });
+  saveAffiliations(affils);
+  saveDB(db);
+
+  // 3 — Mettre à jour la session si c'est l'utilisateur actif
+  const session = getSession();
+  if (session && session.uid === uid) {
+    saveSession(db[uid]);
+    renderRoleBadge(db[uid]);
+    renderHeaderActions(true);
+  }
+}
+
 // ── Quitter une organisation ────────────────────
 function leaveOrganisation() {
   const session = getSession();
@@ -4805,13 +5403,8 @@ function leaveOrganisation() {
   const user = db[session.uid];
   if (!user || !user.orgId) return;
   const orgName = getUserStatus(user).label;
-  if (!confirm('Quitter ' + orgName + ' ? Tu repasseras en statut LIBRE.')) return;
-  delete user.orgId;
-  user.isVisible = true; // redevient visible sur le marché automatiquement
-  db[session.uid] = user;
-  saveDB(db);
-  saveSession(user);
-  renderRoleBadge(user);
+  if (!confirm('Quitter ' + orgName + ' ? Tu repasseras en statut LIBRE et tes affiliations seront supprimées.')) return;
+  cleanupOnLeaveOrg(session.uid, 'left');
   showToast('◎ Tu es maintenant LIBRE');
 }
 
@@ -4828,9 +5421,9 @@ function toggleMarketVisibility() {
   saveSession(user);
   renderRoleBadge(user);
   if (user.orgId) {
-    showToast(user.isVisible !== false ? '🔍 Tu apparais sur le marché des talents' : '🔒 Tu es masqué du marché des talents');
+    showToast(user.isVisible !== false ? '✅ Tu es DISPONIBLE sur le marché des talents' : '○ Tu es INDISPONIBLE sur le marché des talents');
   } else {
-    showToast(user.isVisible !== false ? '👁 Visible sur le marché' : '🔒 Masqué du marché');
+    showToast(user.isVisible !== false ? '✅ Tu es DISPONIBLE sur le marché' : '○ Tu es INDISPONIBLE sur le marché');
   }
 }
 
@@ -4926,7 +5519,8 @@ function openMemberTracking(uid) {
     <details style="margin-top:6px;">
       <summary style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;list-style:none;">🎓 HISTORIQUE COMPÉTENCES (${skillHistory.length})</summary>
       <div style="margin-top:6px;">${skillHistHtml}</div>
-    </details>`;
+    </details>
+    ${orgHistoryWidget(uid)}`;
 
   document.getElementById('memberName').textContent = member.pseudo.toUpperCase();
   document.getElementById('memberProfileContent').innerHTML = html;
@@ -5254,6 +5848,14 @@ function saveCustomModules(mods) {
   try { localStorage.setItem(CUSTOM_MODULES_KEY, JSON.stringify(mods)); } catch(e) {}
 }
 
+const MODULE_REQUESTS_KEY = 'codex_module_requests';
+function getModuleRequests() {
+  try { return JSON.parse(localStorage.getItem(MODULE_REQUESTS_KEY)) || []; } catch(e) { return []; }
+}
+function saveModuleRequests(list) {
+  try { localStorage.setItem(MODULE_REQUESTS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
 function doCreateModule() {
   const name  = document.getElementById('moduleTabName').value.trim();
   const key   = document.getElementById('moduleTabKey').value.trim();
@@ -5267,29 +5869,351 @@ function doCreateModule() {
     errEl.textContent = 'Cette clé existe déjà'; errEl.style.display='block'; return;
   }
 
-  const mod = { key, label: name, color, emoji, desc, milestones: [] };
-  const mods = getCustomModules();
-  mods.push(mod);
-  saveCustomModules(mods);
+  const session = getSession();
+  const db = getDB();
+  const currentUser = session ? db[session.uid] : null;
 
-  // Ajouter dynamiquement
-  QUEST_DATA[key] = [];
-  ALL_METIER_TABS.push({ key, label: name, color, emoji });
-  TAB_NAMES[key] = name;
+  // Admin général → création directe
+  if (currentUser && currentUser.role === 'admin') {
+    _applyModuleCreation({ key, label:name, color, emoji, desc });
+    closeModal('createModuleModal');
+    renderTabBar();
+    showToast('✓ MODULE "' + name.toUpperCase() + '" CRÉÉ');
+    return;
+  }
 
-  // Créer le panel HTML
-  const panel = document.createElement('div');
-  panel.className = 'tab-panel';
-  panel.id = 'panel-' + key;
-  panel.innerHTML = `<div class="tip-box"><div class="tip-title">${emoji} ${name}</div>${desc}</div><div id="questList-${key}"></div>`;
-  document.getElementById('appContainer').appendChild(panel);
+  // Admin local → soumettre à validation de l'admin général
+  const req = {
+    id: 'modreq_' + Date.now(),
+    key, label: name, color, emoji, desc,
+    requestedBy: currentUser?.pseudo || '?',
+    requestedByUid: session?.uid,
+    status: 'pending', // pending | approved | rejected
+    createdAt: new Date().toISOString(),
+  };
+  const requests = getModuleRequests();
+  requests.unshift(req);
+  saveModuleRequests(requests);
+
+  // Notifier l'admin général via localStorage partagé
+  try {
+    const an = JSON.parse(localStorage.getItem('codex_admin_verify_notifs') || '[]');
+    an.unshift({ type:'module_request', id:req.id, pseudo:currentUser?.pseudo, moduleName:name, date:req.createdAt, read:false });
+    localStorage.setItem('codex_admin_verify_notifs', JSON.stringify(an));
+  } catch(e) {}
 
   closeModal('createModuleModal');
-  renderTabBar();
-  showToast('✓ MODULE "' + name.toUpperCase() + '" CRÉÉ');
+  showToast('📤 DEMANDE ENVOYÉE — En attente de validation par l\'admin général');
+}
+
+function _applyModuleCreation(mod) {
+  const mods = getCustomModules();
+  mods.push({ ...mod, milestones:[] });
+  saveCustomModules(mods);
+  QUEST_DATA[mod.key] = [];
+  ALL_METIER_TABS.push({ key:mod.key, label:mod.label, color:mod.color, emoji:mod.emoji });
+  TAB_NAMES[mod.key] = mod.label;
+  const panel = document.createElement('div');
+  panel.className = 'tab-panel';
+  panel.id = 'panel-' + mod.key;
+  panel.innerHTML = `<div class="tip-box"><div class="tip-title">${mod.emoji} ${mod.label}</div>${mod.desc||''}</div><div id="questList-${mod.key}"></div>`;
+  document.getElementById('appContainer').appendChild(panel);
 }
 
 // ── MISE À JOUR renderAdminPanel pour bouton console ────────────────
+
+
+// ═══════════════════════════════════════════════
+// SYSTÈME DE TUTORIEL
+// ═══════════════════════════════════════════════
+const TUTO_KEY = 'codex_tuto_done'; // { user: true, manager: true, admin_local: true }
+
+function getTutoDone() {
+  try { return JSON.parse(localStorage.getItem(TUTO_KEY)) || {}; } catch(e) { return {}; }
+}
+function setTutoDone(role) {
+  const d = getTutoDone(); d[role] = true;
+  try { localStorage.setItem(TUTO_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+// ── Définition des tutoriels par rôle ──────────────────────────────
+const TUTORIALS = {
+
+  user: [
+    { title:'Bienvenue sur CODEX INDUSTRIEL',
+      text:'Ton espace de progression personnalisé. Ici tu construis et valorises tes compétences métier pas à pas.',
+      target: null },
+    { title:'Ton profil',
+      text:'Clique sur ton avatar pour modifier ta photo et tes informations. Ton pseudo est ton identité sur la plateforme.',
+      target: 'playerAvatar' },
+    { title:'XP et niveaux',
+      text:'Chaque compétence cochée te rapporte des XP. Plus tu progresses, plus ton niveau augmente — jusqu\'au niveau 40.',
+      target: 'xpBar' },
+    { title:'Les onglets métier',
+      text:'Ces onglets correspondent à tes compétences terrain. Chaque onglet contient des maîtrises à débloquer.',
+      target: 'tabBar' },
+    { title:'Cocher une compétence',
+      text:'Clique sur une étape pour déclarer une compétence. Si tu as un manager affilié, il recevra une demande de validation.',
+      target: 'tabBar' },
+    { title:'Missions et objectifs',
+      text:'Ton manager peut t\'attribuer des missions courtes ou des objectifs annuels. Accomplis-les pour gagner des XP bonus.',
+      target: 'missionPopupBtn' },
+    { title:'Notifications',
+      text:'Ici tu reçois les validations, refus, invitations et messages. Consulte-les régulièrement.',
+      target: 'notifHeaderBtn' },
+    { title:'Ton statut',
+      text:'Tu es actuellement LIBRE — tu n\'appartiens à aucune organisation. Une entreprise peut t\'inviter à rejoindre son équipe.',
+      target: 'roleBadgeArea' },
+    { title:'Vérification de parcours',
+      text:'Tu peux soumettre ton CV et tes diplômes pour obtenir le badge PROFIL VÉRIFIÉ, visible par les recruteurs.',
+      target: 'verifyBtn' },
+    { title:'C\'est parti !',
+      text:'Tu es prêt. Commence par explorer les onglets métier et coche tes premières compétences. Bonne progression !',
+      target: null },
+  ],
+
+  manager: [
+    { title:'Nouveau rôle : MANAGER',
+      text:'Tu viens de recevoir le rôle MANAGER. Tu peux désormais suivre et accompagner la progression de ton équipe.',
+      target: 'roleBadgeArea' },
+    { title:'Accéder à la vue équipe',
+      text:'Clique sur ton badge MANAGER pour accéder à la vue équipe. Tu y vois tous tes collaborateurs affiliés.',
+      target: 'roleBadgeArea' },
+    { title:'Liste de tes collaborateurs',
+      text:'Chaque collaborateur apparaît sous forme de fiche. Clique dessus pour la déplier et accéder aux actions disponibles.',
+      target: 'roleBadgeArea' },
+    { title:'Valider une compétence',
+      text:'Quand un collaborateur coche une compétence, tu reçois une notification. Tu peux valider ou refuser directement depuis ta liste équipe.',
+      target: 'notifHeaderBtn' },
+    { title:'Attribuer une mission',
+      text:'Depuis la fiche d\'un collaborateur, clique sur 🎯 MISSION pour lui assigner une tâche courte avec XP et délai.',
+      target: 'roleBadgeArea' },
+    { title:'Objectif annuel',
+      text:'Clique sur 🏆 OBJECTIF pour définir un objectif sur l\'année. Maximum 5 actifs par collaborateur.',
+      target: 'roleBadgeArea' },
+    { title:'Suivi complet',
+      text:'Le bouton 📋 SUIVI te donne accès à l\'historique complet — missions, objectifs et compétences validées.',
+      target: 'roleBadgeArea' },
+    { title:'C\'est parti !',
+      text:'Tu es prêt à accompagner ton équipe. Consulte tes notifications régulièrement pour ne manquer aucune demande de validation.',
+      target: null },
+  ],
+
+  admin_local: [
+    { title:'Nouveau rôle : ADMINISTRATEUR LOCAL',
+      text:'Tu gères les utilisateurs, les modules et l\'organisation de ton site. Tout se passe depuis ta console.',
+      target: 'roleBadgeArea' },
+    { title:'Ouvrir la console',
+      text:'Clique sur ton badge pour ouvrir la console d\'administration. Elle contient tous tes outils de gestion.',
+      target: 'roleBadgeArea' },
+    { title:'Onglet MEMBRES',
+      text:'Liste tous les membres de ton organisation. Tu peux rechercher, changer les rôles et accéder à la console individuelle de chaque membre.',
+      target: 'adminTab-members' },
+    { title:'Console utilisateur',
+      text:'Le bouton ⚙ CONSOLE sur chaque membre te permet de modifier ses XP, valider ses compétences et consulter ses historiques.',
+      target: 'adminTab-members' },
+    { title:'Onglet ORGANISATION',
+      text:'Configure le nom et la formule de ton entreprise. Les utilisateurs pourront y être rattachés pour devenir membres de ton équipe.',
+      target: 'adminTab-org' },
+    { title:'Onglet MARCHÉ',
+      text:'Affiche les utilisateurs LIBRES ayant des compétences dans tes modules. Filtre par module et envoie des invitations de recrutement directement depuis cette vue.',
+      target: 'adminTab-market' },
+    { title:'Onglet MODULES',
+      text:'Active ou désactive les modules métier. La création d\'un module personnalisé est soumise à validation de l\'administrateur général.',
+      target: 'adminTab-modules' },
+    { title:'Onglet CONNECTÉS',
+      text:'Affiche les sessions actives en temps réel. Tu peux forcer la déconnexion d\'un utilisateur si nécessaire.',
+      target: 'adminTab-online' },
+    { title:'Onglet DEMANDES',
+      text:'Centralise les demandes de réinitialisation de mot de passe. Saisis un mot de passe temporaire et l\'utilisateur est notifié.',
+      target: 'adminTab-requests' },
+    { title:'C\'est parti !',
+      text:'Ta console est prête. Commence par configurer ton organisation dans l\'onglet ORGANISATION, puis invite tes premiers membres via le MARCHÉ.',
+      target: null },
+  ]
+};
+
+// ── État du tutoriel en cours ───────────────────
+let _tutoSteps = [];
+let _tutoIdx   = 0;
+let _tutoRole  = null;
+
+function launchTutorial(role) {
+  const session = getSession();
+  const db = getDB();
+  const user = session ? db[session.uid] : null;
+  const r = role || (user ? user.role : null);
+  if (!r || !TUTORIALS[r]) return;
+
+  _tutoRole  = r;
+  _tutoSteps = TUTORIALS[r];
+  _tutoIdx   = 0;
+  renderTutoStep();
+}
+
+function renderTutoStep() {
+  const step = _tutoSteps[_tutoIdx];
+  const total = _tutoSteps.length;
+  const overlay = document.getElementById('tutoOverlay');
+  const highlight = document.getElementById('tutoHighlight');
+
+  // Textes
+  document.getElementById('tutoStepNum').textContent = _tutoIdx + 1;
+  document.getElementById('tutoStepTotal').textContent = total;
+  document.getElementById('tutoTitle').textContent = step.title;
+  document.getElementById('tutoText').textContent = step.text;
+
+  // Bouton dernier step
+  const btn = document.getElementById('tutoBtnNext');
+  btn.textContent = _tutoIdx === total - 1 ? 'TERMINER ✓' : 'SUIVANT ▶';
+
+  // Points de progression
+  const prog = document.getElementById('tutoProgress');
+  prog.innerHTML = _tutoSteps.map((_,i) =>
+    `<div class="tuto-dot ${i < _tutoIdx ? 'done' : i === _tutoIdx ? 'active' : ''}"></div>`
+  ).join('');
+
+  // Highlight de l'élément ciblé
+  if (step.target) {
+    const el = document.getElementById(step.target);
+    if (el) {
+      // Scroll instantané vers l'élément
+      el.scrollIntoView({ behavior:'instant', block:'nearest' });
+      // Position immédiate après scroll instantané
+      const rect = el.getBoundingClientRect();
+      const pad = 6;
+      highlight.style.cssText = `
+        position:fixed; z-index:802; pointer-events:none;
+        top:${rect.top - pad}px; left:${rect.left - pad}px;
+        width:${rect.width + pad*2}px; height:${rect.height + pad*2}px;
+        border:2px solid var(--accent);
+        box-shadow:0 0 0 4px rgba(0,200,255,0.15),0 0 20px rgba(0,200,255,0.3);
+        border-radius:4px; animation:tuto-pulse 1.5s infinite;
+      `;
+      highlight.style.display = 'block';
+    } else {
+      highlight.style.display = 'none';
+    }
+  } else {
+    highlight.style.display = 'none';
+  }
+
+  // Bloquer le scroll pendant le tutoriel
+  document.body.style.overflow = 'hidden';
+
+  overlay.classList.add('active');
+}
+
+// Repositionner le cadre si l'utilisateur scrolle pendant le tutoriel
+function repositionHighlight() {
+  if (!_tutoSteps.length) return;
+  const step = _tutoSteps[_tutoIdx];
+  if (!step || !step.target) return;
+  const el = document.getElementById(step.target);
+  const highlight = document.getElementById('tutoHighlight');
+  if (!el || !highlight || highlight.style.display === 'none') return;
+  const rect = el.getBoundingClientRect();
+  const pad = 6;
+  highlight.style.top  = (rect.top  - pad) + 'px';
+  highlight.style.left = (rect.left - pad) + 'px';
+  highlight.style.width  = (rect.width  + pad*2) + 'px';
+  highlight.style.height = (rect.height + pad*2) + 'px';
+}
+
+// Écouter le scroll et le resize pour reposition
+window.addEventListener('scroll', repositionHighlight, { passive:true });
+window.addEventListener('resize', repositionHighlight, { passive:true });
+
+function tutoNext() {
+  if (_tutoIdx >= _tutoSteps.length - 1) {
+    endTutorial();
+    return;
+  }
+  _tutoIdx++;
+  renderTutoStep();
+}
+
+function skipTutorial() {
+  endTutorial();
+}
+
+function endTutorial() {
+  document.getElementById('tutoOverlay').classList.remove('active');
+  document.getElementById('tutoHighlight').style.display = 'none';
+  document.body.style.overflow = ''; // Débloquer le scroll
+  if (_tutoRole) setTutoDone(_tutoRole);
+  _tutoSteps = []; _tutoIdx = 0; _tutoRole = null;
+}
+
+// ── Menu hamburger ──────────────────────────────
+// ═══════════════════════════════════════════════
+// THÈMES
+// ═══════════════════════════════════════════════
+const THEME_KEY = 'codex_theme';
+
+function setTheme(theme) {
+  const root = document.documentElement;
+  if (theme === 'classic') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+  try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+  // Marquer le thème actif dans le sous-menu
+  updateThemeIndicator(theme);
+}
+
+function updateThemeIndicator(theme) {
+  // Optionnel : cocher visuellement le thème actif
+  const arrow = document.getElementById('themeArrow');
+  if (arrow) {
+    const labels = { classic:'🔵', dark:'⚫', light:'⚪' };
+    arrow.textContent = (labels[theme] || '') + ' ▸';
+  }
+}
+
+function loadSavedTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY) || 'classic';
+    setTheme(saved);
+  } catch(e) {}
+}
+
+function toggleThemeSubmenu() {
+  const sub = document.getElementById('themeSubmenu');
+  const arrow = document.getElementById('themeArrow');
+  if (!sub) return;
+  const isOpen = sub.style.display !== 'none';
+  sub.style.display = isOpen ? 'none' : 'block';
+}
+
+function openShop() { openModal('shopModal'); }
+
+function toggleHamburger() {
+  const dd = document.getElementById('hamburgerDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+
+// Fermer le menu si clic en dehors
+document.addEventListener('click', e => {
+  const menu = document.getElementById('hamburgerMenu');
+  if (menu && !menu.contains(e.target)) {
+    const dd = document.getElementById('hamburgerDropdown');
+    if (dd) dd.style.display = 'none';
+  }
+});
+
+// ── Lancer le tutoriel auto à la première connexion ─────────────────
+function checkAndLaunchTutorial(user) {
+  if (!user) return;
+  const done = getTutoDone();
+  const role = user.role;
+  if (TUTORIALS[role] && !done[role]) {
+    // Petit délai pour laisser l'interface se charger
+    setTimeout(() => launchTutorial(role), 800);
+  }
+}
+
 
 </script>
 </body>

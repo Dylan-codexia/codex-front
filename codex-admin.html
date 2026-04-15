@@ -141,7 +141,7 @@
     <div id="stepCredentials">
       <div class="field-group">
         <label>Identifiant</label>
-        <input type="text" id="loginId" placeholder="Adminus25" onkeydown="if(event.key==='Enter')doLoginStep1()">
+        <input type="text" id="loginId" placeholder="" onkeydown="if(event.key==='Enter')doLoginStep1()">
       </div>
       <div class="field-group">
         <label>Mot de passe</label>
@@ -285,6 +285,8 @@
     <div id="filePreviewContent" style="max-width:90vw;max-height:85vh;overflow:auto;"></div>
   </div>
   <div class="admin-pane" id="pane-create">
+
+    <!-- CRÉER UN MODULE -->
     <div class="section-label">Créer un nouveau module métier</div>
     <div class="field-group">
       <label>Nom du module</label>
@@ -310,6 +312,33 @@
     </div>
     <div id="createModErr" class="auth-err"></div>
     <button class="btn-primary btn-success" onclick="doCreateModule()">➕ CRÉER LE MODULE</button>
+
+    <!-- SÉPARATEUR -->
+    <div style="border-top:1px solid var(--border);margin:20px 0;"></div>
+
+    <!-- CRÉER UNE ORGANISATION -->
+    <div class="section-label">Créer une organisation</div>
+    <div id="orgListAdmin" style="margin-bottom:14px;"></div>
+    <div class="field-group">
+      <label>Nom de l'organisation</label>
+      <input type="text" id="orgAdminName" placeholder="ex: APERAM" maxlength="40">
+    </div>
+    <div style="display:flex;gap:12px;">
+      <div class="field-group" style="flex:1">
+        <label>Couleur principale</label>
+        <input type="color" id="orgAdminColor" value="#0057a8">
+      </div>
+      <div class="field-group" style="flex:1">
+        <label>Formule</label>
+        <select id="orgAdminPlan" class="admin-select" style="width:100%;padding:8px;">
+          <option value="starter">⭐ Starter</option>
+          <option value="premium">💎 Premium</option>
+        </select>
+      </div>
+    </div>
+    <div id="createOrgErr" class="auth-err"></div>
+    <button class="btn-primary" onclick="doAdminCreateOrg()">🏢 CRÉER L'ORGANISATION</button>
+
   </div>
 
   <!-- MODAL CONSOLE UTILISATEUR -->
@@ -403,10 +432,20 @@ function getAdminSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_KEY)) || null; } catch(e) { return null; }
 }
 function saveAdminSession(u) {
-  try { localStorage.setItem(SESSION_KEY, JSON.stringify(u)); } catch(e) {}
+  // Stocker la session avec un timestamp de validation TOTP
+  const sessionData = { ...u, totpValidatedAt: Date.now() };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData)); } catch(e) {}
 }
 function clearAdminSession() {
   try { localStorage.removeItem(SESSION_KEY); } catch(e) {}
+}
+function isSessionTOTPValid() {
+  // Vérifie si le TOTP a été validé dans les 12 dernières heures
+  const session = getAdminSession();
+  if (!session || !session.totpValidatedAt) return false;
+  const elapsed = Date.now() - session.totpValidatedAt;
+  const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+  return elapsed < TWELVE_HOURS;
 }
 
 // ═══════════════════════════════════════════════
@@ -544,6 +583,15 @@ function doLoginStep1() {
 
   _pendingUser = user;
 
+  // Session TOTP encore valide (< 12h) → pas besoin de re-valider
+  if (isSessionTOTPValid()) {
+    const existingSession = getAdminSession();
+    if (existingSession && existingSession.uid === user.uid) {
+      onLoginSuccess(user);
+      return;
+    }
+  }
+
   // Première utilisation → setup TOTP
   if (!isTOTPConfigured()) {
     showSetupStep();
@@ -619,6 +667,7 @@ function backToStep1() {
 function doLogin() { doLoginStep1(); }
 
 function doLogout() {
+  stopInactivityWatcher();
   clearAdminSession();
   document.getElementById('authOverlay').classList.add('active');
   document.getElementById('adminApp').style.display = 'none';
@@ -630,6 +679,7 @@ function onLoginSuccess(user) {
   document.getElementById('authOverlay').classList.remove('active');
   document.getElementById('adminApp').style.display = 'block';
   document.getElementById('adminUserInfo').textContent = '⚡ ' + user.pseudo.toUpperCase();
+  startInactivityWatcher();
   switchTab('members');
 }
 
@@ -657,6 +707,7 @@ function switchTab(tab) {
   if (tab === 'modules') renderModules();
   if (tab === 'affiliations') renderAffiliations();
   if (tab === 'verify') renderVerifications();
+  if (tab === 'create') renderOrgListAdmin();
 }
 
 // ── MEMBRES ─────────────────────────────────────
@@ -756,12 +807,38 @@ function openConsole(uid) {
 
   document.getElementById('consoleUserName').textContent = u.pseudo.toUpperCase();
 
+  // Détecter si l'IP est partagée avec d'autres comptes
+  const allUsers = Object.values(JSON.parse(localStorage.getItem('codex_users_db') || '{}'));
+  const lastIp = u.lastIp || null;
+  const ipSharedWith = lastIp
+    ? allUsers.filter(x => x.uid !== uid && x.lastIp === lastIp).map(x => x.pseudo)
+    : [];
+
   let html = `
     <div style="background:rgba(255,68,68,0.05);border:1px solid rgba(255,68,68,0.2);padding:10px;margin-bottom:14px;">
       <div style="font-family:'Orbitron',monospace;font-size:11px;color:#fff;">${u.pseudo}</div>
       <div style="font-size:8px;color:var(--muted);margin-top:2px;">${u.email} · ${u.role.toUpperCase()}</div>
       <div style="font-size:9px;color:var(--gold);margin-top:4px;">XP Missions/Objectifs : ${uState.missionXP||0}</div>
+      ${lastIp ? `<div style="font-size:8px;margin-top:4px;color:${ipSharedWith.length?'#ff6b00':'var(--muted)'};">
+        ${ipSharedWith.length ? '⚠️' : '🌐'} Dernière IP : <span style="font-family:'Share Tech Mono',monospace;">${lastIp}</span>
+        ${ipSharedWith.length ? `<div style="font-size:7px;color:#ff6b00;margin-top:2px;">⚠️ IP partagée avec : ${ipSharedWith.join(', ')}</div>` : ''}
+      </div>` : ''}
     </div>
+
+    ${u.ipHistory && u.ipHistory.length ? `
+    <details style="margin-bottom:14px;">
+      <summary style="font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;list-style:none;">🌐 HISTORIQUE IP (${u.ipHistory.length})</summary>
+      <div style="margin-top:6px;background:var(--bg);border:1px solid var(--border);padding:8px;">
+        ${u.ipHistory.map(e => {
+          const sameIpUsers = allUsers.filter(x => x.uid !== uid && x.lastIp === e.ip).map(x => x.pseudo);
+          return `<div style="padding:4px 0;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:8px;color:${sameIpUsers.length?'#ff6b00':'var(--muted)'};">
+            ${sameIpUsers.length?'⚠️':'🌐'} ${e.ip}
+            <span style="float:right;color:var(--muted);font-size:7px;">${new Date(e.date).toLocaleString('fr-FR')}</span>
+            ${sameIpUsers.length?`<div style="font-size:7px;color:#ff6b00;">Partagée avec : ${sameIpUsers.join(', ')}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </details>` : ''}
 
     <div class="section-label" style="margin-bottom:8px;">XP BONUS</div>
     <div style="display:flex;gap:8px;margin-bottom:14px;">
@@ -785,6 +862,39 @@ function openConsole(uid) {
     });
   }
 
+  // ── Section Organisation ────────────────────────
+  const orgConfig = (() => { try { return JSON.parse(localStorage.getItem('codex_org_config')) || null; } catch(e) { return null; } })();
+  const allOrgsList = getAllOrgs();
+
+  // Construire la liste de toutes les orgs disponibles
+  const allOrgs = [...allOrgsList];
+  if (orgConfig && !allOrgs.find(o => o.id === orgConfig.id)) allOrgs.push({ id: orgConfig.id, name: orgConfig.name });
+
+  const currentOrg = u.orgId ? (allOrgs.find(o => o.id === u.orgId)?.name || u.orgId) : null;
+
+  const orgOptions = allOrgs.map(o =>
+    `<option value="${o.id}" ${u.orgId === o.id ? 'selected' : ''}>${o.name}</option>`
+  ).join('');
+
+  html += `
+    <div class="section-label" style="margin:14px 0 8px;">🏢 ORGANISATION</div>
+    <div style="background:var(--bg);border:1px solid var(--border);padding:10px;margin-bottom:14px;">
+      <div style="font-size:9px;color:var(--muted);margin-bottom:8px;">
+        Statut actuel : <span style="color:${currentOrg ? 'var(--gold)' : '#a855f7'};">
+          ${currentOrg ? '🏢 ' + currentOrg : '◎ LIBRE'}
+        </span>
+      </div>
+      ${allOrgs.length ? `
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+        <select id="orgSelect_${uid}" class="admin-select" style="flex:1;">
+          <option value="">— Aucune organisation (LIBRE) —</option>
+          ${orgOptions}
+        </select>
+        <button onclick="adminSetUserOrg('${uid}')" style="font-family:Share Tech Mono,monospace;font-size:8px;padding:5px 10px;border:1px solid var(--accent);color:var(--accent);background:rgba(0,200,255,0.06);cursor:pointer;white-space:nowrap;">✓ APPLIQUER</button>
+      </div>` : '<div style="font-size:9px;color:var(--muted);">Aucune organisation configurée</div>'}
+      ${currentOrg ? `<button onclick="adminRemoveUserOrg('${uid}')" style="font-family:Share Tech Mono,monospace;font-size:8px;padding:4px 10px;border:1px solid #ff4444;color:#ff4444;background:transparent;cursor:pointer;">✕ RETIRER DE L'ORGANISATION</button>` : ''}
+    </div>`;
+
   // Historiques
   html += `<details style="margin-top:10px;"><summary style="font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;">📋 HISTORIQUE MISSIONS (${mHist.length})</summary>
     <div style="margin-top:6px;">${mHist.map(m=>`<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:9px;color:${m.status==='validated'?'var(--accent3)':'var(--muted)'};">
@@ -801,7 +911,8 @@ function openConsole(uid) {
   <details style="margin-top:6px;"><summary style="font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;">🎓 HISTORIQUE COMPÉTENCES (${skillNotifs.length})</summary>
     <div style="margin-top:6px;">${skillNotifs.map(n=>`<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:9px;color:${n.type==='skill_validated'?'var(--accent3)':'var(--red)'};">
       ${n.type==='skill_validated'?'✓':'✗'} ${n.sub} — ${new Date(n.date).toLocaleDateString('fr-FR')}
-    </div>`).join('')||'<div style="font-size:9px;color:var(--muted);padding:6px;">Vide</div>'}</div></details>`;
+    </div>`).join('')||'<div style="font-size:9px;color:var(--muted);padding:6px;">Vide</div>'}</div></details>
+  ${orgHistoryWidget(uid)}`;
 
   document.getElementById('userConsoleContent').innerHTML = html;
   document.getElementById('userConsoleModal').style.display = 'block';
@@ -860,6 +971,82 @@ function adminDelHistory(type, uid, itemId) {
   } catch(e) {}
 }
 
+function adminSetUserOrg(uid) {
+  const select = document.getElementById('orgSelect_' + uid);
+  if (!select) return;
+  const orgId = select.value;
+  const db = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  if (!db[uid]) return;
+
+  const prevOrg = db[uid].orgId;
+
+  if (!orgId) {
+    // Retirer de l'org → même nettoyage que leaveOrganisation
+    adminRemoveUserOrg(uid);
+    return;
+  }
+
+  // Assigner la nouvelle org
+  db[uid].orgId = orgId;
+  localStorage.setItem('codex_users_db', JSON.stringify(db));
+  // Historique : arrivée dans l'org
+  const allOrgsList2 = getAllOrgs();
+  const joinedOrgName = allOrgsList2.find(o => o.id === orgId)?.name || orgId;
+  addOrgHistoryEntry(uid, orgId, joinedOrgName, 'joined');
+
+  // Notifier l'utilisateur
+  const notifs = JSON.parse(localStorage.getItem('codex_notifs') || '{}');
+  if (!notifs[uid]) notifs[uid] = [];
+  const allOrgsList = getAllOrgs();
+  const orgName = allOrgsList.find(o => o.id === orgId)?.name || orgId;
+  notifs[uid].unshift({
+    type: 'org_assigned', title: '🏢 Organisation assignée',
+    sub: `Tu as été assigné à l'organisation ${orgName} par l'administrateur.`,
+    date: new Date().toISOString(), id: 'n_' + Date.now(), read: false,
+  });
+  localStorage.setItem('codex_notifs', JSON.stringify(notifs));
+
+  showToast('✓ ' + db[uid].pseudo.toUpperCase() + ' ASSIGNÉ À ' + orgId.toUpperCase());
+  openConsole(uid);
+}
+
+function adminRemoveUserOrg(uid) {
+  const db = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  if (!db[uid] || !db[uid].orgId) return;
+
+  const orgName = db[uid].orgId;
+  const pseudo = db[uid].pseudo;
+
+  // Retirer l'org
+  const orgName2 = db[uid].orgId;
+  // Historique : départ forcé
+  addOrgHistoryEntry(uid, orgName2, orgName2, 'removed');
+  delete db[uid].orgId;
+  db[uid].isVisible = true;
+  // Repasser en user si manager
+  if (db[uid].role === 'manager') db[uid].role = 'user';
+  localStorage.setItem('codex_users_db', JSON.stringify(db));
+
+  // Supprimer ses affiliations
+  const affils = JSON.parse(localStorage.getItem('codex_affiliations') || '{}');
+  delete affils[uid];
+  Object.keys(affils).forEach(k => { if (affils[k] === uid) delete affils[k]; });
+  localStorage.setItem('codex_affiliations', JSON.stringify(affils));
+
+  // Notifier l'utilisateur
+  const notifs = JSON.parse(localStorage.getItem('codex_notifs') || '{}');
+  if (!notifs[uid]) notifs[uid] = [];
+  notifs[uid].unshift({
+    type: 'org_removed', title: '✗ Retiré de l\'organisation',
+    sub: `Tu as été retiré de ${orgName} par l'administrateur. Tu es maintenant LIBRE.`,
+    date: new Date().toISOString(), id: 'n_' + Date.now(), read: false,
+  });
+  localStorage.setItem('codex_notifs', JSON.stringify(notifs));
+
+  showToast('✓ ' + pseudo.toUpperCase() + ' RETIRÉ — STATUT LIBRE');
+  openConsole(uid);
+}
+
 // ── SUPPRIMER COMPTE ────────────────────────────
 let _deleteUid = null;
 function openDeleteModal(uid) {
@@ -898,20 +1085,43 @@ function renderOnline() {
   const el = document.getElementById('onlineList');
   const roleLabels = { user:'UTILISATEUR', manager:'MANAGER', admin_local:'ADMIN LOCAL', admin:'ADMIN GÉNÉRAL' };
   const roleColors = { user:'var(--muted)', manager:'#ff4444', admin_local:'#00ff88', admin:'#00c8ff' };
+
   if (!entries.length) {
     el.innerHTML = '<div style="padding:14px;color:var(--muted);font-size:10px;text-align:center;">Aucune session active</div>';
     return;
   }
-  el.innerHTML = entries.map(s => `
-    <div class="session-row">
+
+  // Détecter les IPs partagées
+  const ipCount = {};
+  entries.forEach(s => { if (s.ip) ipCount[s.ip] = (ipCount[s.ip] || 0) + 1; });
+
+  el.innerHTML = entries.map(s => {
+    const ipShared = s.ip && ipCount[s.ip] > 1;
+    const othersWithSameIp = ipShared
+      ? entries.filter(e => e.ip === s.ip && e.uid !== s.uid).map(e => e.pseudo).join(', ')
+      : '';
+
+    return `<div class="session-row" style="${ipShared ? 'border-left-color:#ff6b00;' : ''}">
       <div style="width:8px;height:8px;border-radius:50%;background:#00ff88;box-shadow:0 0 6px #00ff88;flex-shrink:0;"></div>
       <div style="flex:1;">
         <div style="font-family:'Orbitron',monospace;font-size:10px;color:#fff;">${s.pseudo}</div>
         <div style="font-size:8px;color:${roleColors[s.role]||'var(--muted)'};">${roleLabels[s.role]||s.role}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;margin-top:3px;">
+          ${s.ip
+            ? `<span style="color:${ipShared?'#ff6b00':'var(--muted)'};">
+                ${ipShared ? '⚠️' : '🌐'} ${s.ip}
+               </span>`
+            : '<span style="color:var(--muted);">IP en cours de récupération...</span>'
+          }
+          ${ipShared ? `<div style="font-size:7px;color:#ff6b00;margin-top:2px;">Partagée avec : ${othersWithSameIp}</div>` : ''}
+        </div>
       </div>
-      <div style="font-size:8px;color:var(--muted);">${new Date(s.loginAt).toLocaleString('fr-FR')}</div>
-      <button onclick="forceLogout('${s.uid}','${s.pseudo}')" style="font-family:Share Tech Mono,monospace;font-size:8px;padding:3px 8px;border:1px solid var(--red);color:var(--red);background:transparent;cursor:pointer;">⏻ DÉCONNECTER</button>
-    </div>`).join('');
+      <div style="font-size:8px;color:var(--muted);text-align:right;">
+        <div>${new Date(s.loginAt).toLocaleString('fr-FR')}</div>
+      </div>
+      <button onclick="forceLogout('${s.uid}','${s.pseudo}')" style="font-family:Share Tech Mono,monospace;font-size:8px;padding:3px 8px;border:1px solid var(--red);color:var(--red);background:transparent;cursor:pointer;margin-left:6px;">⏻</button>
+    </div>`;
+  }).join('');
 }
 
 function forceLogout(uid, pseudo) {
@@ -1037,6 +1247,223 @@ function removeAffil(uid) {
   showToast('✓ AFFILIATION SUPPRIMÉE');
 }
 
+// ── DEMANDES DE MODULES ─────────────────────────
+const MODULE_REQUESTS_KEY = 'codex_module_requests';
+function getModuleRequests() {
+  try { return JSON.parse(localStorage.getItem(MODULE_REQUESTS_KEY)) || []; } catch(e) { return []; }
+}
+function saveModuleRequests(list) {
+  try { localStorage.setItem(MODULE_REQUESTS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function renderModuleRequests() {
+  // Injecté dans le panneau vérifications
+  const requests = getModuleRequests().filter(r => r.status === 'pending');
+  if (!requests.length) return '';
+
+  return `<div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:#a855f7;letter-spacing:2px;margin:14px 0 8px;border-top:1px solid var(--border);padding-top:10px;">
+    🧩 DEMANDES DE CRÉATION MODULE (${requests.length})
+  </div>
+  ${requests.map(r => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-left:3px solid #a855f7;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:#fff;">${r.emoji} ${r.label}</div>
+        <div style="font-size:8px;color:var(--muted);">${new Date(r.createdAt).toLocaleDateString('fr-FR')}</div>
+      </div>
+      <div style="font-size:8px;color:var(--muted);margin-bottom:4px;">Clé : <span style="color:var(--accent);">${r.key}</span> · Par : <span style="color:#a855f7;">${r.requestedBy}</span></div>
+      ${r.desc ? `<div style="font-size:9px;color:var(--text);margin-bottom:8px;">${r.desc}</div>` : ''}
+      <div style="display:flex;gap:6px;">
+        <button onclick="resolveModuleRequest('${r.id}',true)" style="flex:1;font-size:8px;padding:5px;border:1px solid var(--accent3);color:var(--accent3);background:rgba(0,255,136,0.06);cursor:pointer;">✓ APPROUVER</button>
+        <button onclick="resolveModuleRequest('${r.id}',false)" style="flex:1;font-size:8px;padding:5px;border:1px solid #ff4444;color:#ff4444;background:transparent;cursor:pointer;">✕ REFUSER</button>
+      </div>
+    </div>`).join('')}`;
+}
+
+function resolveModuleRequest(requestId, accept) {
+  const requests = getModuleRequests();
+  const req = requests.find(r => r.id === requestId);
+  if (!req) return;
+  req.status = accept ? 'approved' : 'rejected';
+  req.resolvedAt = new Date().toISOString();
+  saveModuleRequests(requests);
+
+  if (accept) {
+    // Créer le module dans le localStorage partagé
+    const mods = JSON.parse(localStorage.getItem('codex_custom_modules') || '[]');
+    mods.push({ key:req.key, label:req.label, color:req.color, emoji:req.emoji, desc:req.desc, quests:[] });
+    localStorage.setItem('codex_custom_modules', JSON.stringify(mods));
+    showToast('✓ MODULE "' + req.label.toUpperCase() + '" APPROUVÉ');
+  } else {
+    showToast('✗ DEMANDE REFUSÉE');
+  }
+
+  // Notifier l'admin local
+  if (req.requestedByUid) {
+    const notifs = JSON.parse(localStorage.getItem('codex_notifs') || '{}');
+    if (!notifs[req.requestedByUid]) notifs[req.requestedByUid] = [];
+    notifs[req.requestedByUid].unshift({
+      type: accept ? 'module_approved' : 'module_rejected',
+      title: accept ? '✓ Module approuvé !' : '✗ Module refusé',
+      sub: `Module "${req.label}" ${accept ? 'a été approuvé par l\'admin général' : 'a été refusé'}`,
+      date: new Date().toISOString(), id: 'n_' + Date.now(), read: false,
+    });
+    localStorage.setItem('codex_notifs', JSON.stringify(notifs));
+  }
+  renderVerifications();
+}
+
+// ── HISTORIQUE ORGANISATIONS ─────────────────────
+function addOrgHistoryEntry(uid, orgId, orgName, action) {
+  const db = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  if (!db[uid]) return;
+  if (!db[uid].orgHistory) db[uid].orgHistory = [];
+  const last = db[uid].orgHistory[0];
+  if ((action === 'left' || action === 'removed' || action === 'dissolved') && last && !last.endDate) {
+    last.endDate = new Date().toISOString();
+    last.endReason = action;
+  }
+  if (action === 'joined') {
+    db[uid].orgHistory.unshift({ orgId, orgName, startDate:new Date().toISOString(), endDate:null, endReason:null });
+  }
+  localStorage.setItem('codex_users_db', JSON.stringify(db));
+}
+
+function orgHistoryWidget(uid) {
+  const db = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  const user = db[uid];
+  if (!user) return '';
+  const history = user.orgHistory || [];
+  const count = history.length;
+  const reasonLabel = { left:'↩ Départ volontaire', removed:'✕ Retiré par admin', dissolved:'🗑 Organisation dissoute' };
+
+  const rows = history.map(e => {
+    const start = new Date(e.startDate).toLocaleDateString('fr-FR');
+    const end = e.endDate ? new Date(e.endDate).toLocaleDateString('fr-FR') : null;
+    const isActive = !e.endDate;
+    const diffDays = Math.floor((e.endDate ? new Date(e.endDate) : new Date() - new Date(e.startDate)) / 86400000);
+    const duration = diffDays < 30 ? diffDays+'j' : diffDays < 365 ? Math.floor(diffDays/30)+'mois' : (diffDays/365).toFixed(1)+'an';
+    return `<div style="padding:7px 10px;border-bottom:1px solid var(--border);border-left:3px solid ${isActive?'var(--accent3)':'var(--border)'};">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Orbitron',monospace;font-size:9px;color:${isActive?'#fff':'var(--muted)'};">🏢 ${e.orgName||e.orgId}</div>
+        ${isActive?'<span style="font-size:7px;color:var(--accent3);border:1px solid var(--accent3);padding:1px 4px;">EN COURS</span>':''}
+      </div>
+      <div style="font-family:Share Tech Mono,monospace;font-size:8px;color:var(--muted);margin-top:2px;">
+        📅 ${start}${end?' → '+end:' → aujourd\'hui'} · ⏱ ${duration}
+      </div>
+      ${!isActive&&e.endReason?`<div style="font-size:7px;color:var(--muted);">${reasonLabel[e.endReason]||e.endReason}</div>`:''}
+    </div>`;
+  }).join('') || '<div style="font-size:9px;color:var(--muted);padding:8px;">Aucun historique</div>';
+
+  return `<details style="margin-top:10px;">
+    <summary style="font-size:8px;color:var(--muted);cursor:pointer;letter-spacing:2px;list-style:none;padding:6px 0;">
+      🏢 HISTORIQUE ORGANISATIONS (${count})
+    </summary>
+    <div style="background:var(--bg);border:1px solid var(--border);margin-top:4px;">${rows}</div>
+  </details>`;
+}
+
+// ── GESTION ORGANISATIONS (admin général) ───────
+const ORG_CONFIG_KEY = 'codex_org_config';
+const ALL_ORGS_KEY   = 'codex_all_orgs'; // liste de toutes les orgs créées
+
+function getAllOrgs() {
+  try { return JSON.parse(localStorage.getItem(ALL_ORGS_KEY)) || []; } catch(e) { return []; }
+}
+function saveAllOrgs(list) {
+  try { localStorage.setItem(ALL_ORGS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function renderOrgListAdmin() {
+  const el = document.getElementById('orgListAdmin');
+  if (!el) return;
+  const orgs = getAllOrgs();
+  if (!orgs.length) {
+    el.innerHTML = '<div style="font-size:9px;color:var(--muted);margin-bottom:8px;">Aucune organisation créée</div>';
+    return;
+  }
+  el.innerHTML = orgs.map(o => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-left:3px solid ${o.color||'var(--gold)'};margin-bottom:6px;">
+      <div style="flex:1;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:#fff;">🏢 ${o.name}</div>
+        <div style="font-size:8px;color:var(--muted);margin-top:2px;">${o.plan==='premium'?'💎 Premium':'⭐ Starter'} · ID: ${o.id}</div>
+      </div>
+      <button onclick="adminDissolveOrg('${o.id}')" style="font-size:8px;padding:3px 8px;border:1px solid #ff4444;color:#ff4444;background:transparent;cursor:pointer;">🗑 Dissoudre</button>
+    </div>`).join('');
+}
+
+function doAdminCreateOrg() {
+  const name  = document.getElementById('orgAdminName').value.trim();
+  const color = document.getElementById('orgAdminColor').value;
+  const plan  = document.getElementById('orgAdminPlan').value;
+  const err   = document.getElementById('createOrgErr');
+
+  if (!name) { showErr(err, 'Nom obligatoire'); return; }
+
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const orgs = getAllOrgs();
+
+  if (orgs.find(o => o.id === id)) {
+    showErr(err, 'Une organisation avec ce nom existe déjà'); return;
+  }
+
+  const newOrg = { id, name, color, plan, createdAt: new Date().toISOString() };
+  orgs.push(newOrg);
+  saveAllOrgs(orgs);
+
+  // Aussi stocker dans codex_org_config pour compatibilité avec parcours-rpg
+  // (si c'est la première org ou si on veut l'activer comme org locale par défaut)
+  const existing = (() => { try { return JSON.parse(localStorage.getItem(ORG_CONFIG_KEY)); } catch(e) { return null; } })();
+  if (!existing) {
+    localStorage.setItem(ORG_CONFIG_KEY, JSON.stringify(newOrg));
+  }
+
+  document.getElementById('orgAdminName').value = '';
+  showToast('🏢 ORGANISATION "' + name.toUpperCase() + '" CRÉÉE');
+  renderOrgListAdmin();
+}
+
+function adminDissolveOrg(orgId) {
+  const orgs = getAllOrgs();
+  const org = orgs.find(o => o.id === orgId);
+  if (!org) return;
+
+  // Retirer tous les membres de cette org
+  const db = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  let count = 0;
+  Object.values(db).forEach(u => {
+    if (u.orgId === orgId) {
+      // Historique : dissolution
+      addOrgHistoryEntry(u.uid, orgId, org.name, 'dissolved');
+      delete u.orgId;
+      u.isVisible = true;
+      if (u.role === 'manager') u.role = 'user';
+      count++;
+    }
+  });
+  localStorage.setItem('codex_users_db', JSON.stringify(db));
+
+  // Supprimer les affiliations liées
+  const affils = JSON.parse(localStorage.getItem('codex_affiliations') || '{}');
+  const db2 = JSON.parse(localStorage.getItem('codex_users_db') || '{}');
+  Object.keys(affils).forEach(k => {
+    const u = db2[k];
+    const m = db2[affils[k]];
+    if (!u?.orgId || !m?.orgId) delete affils[k];
+  });
+  localStorage.setItem('codex_affiliations', JSON.stringify(affils));
+
+  // Retirer de la liste
+  saveAllOrgs(orgs.filter(o => o.id !== orgId));
+
+  // Nettoyer org_config si c'était l'org active
+  const cfg = (() => { try { return JSON.parse(localStorage.getItem(ORG_CONFIG_KEY)); } catch(e) { return null; } })();
+  if (cfg && cfg.id === orgId) localStorage.removeItem(ORG_CONFIG_KEY);
+
+  showToast(`🗑 ORG "${org.name.toUpperCase()}" DISSOUTE — ${count} membre${count>1?'s':''} repassé${count>1?'s':''} LIBRE`);
+  renderOrgListAdmin();
+  renderMembers();
+}
+
 // ── VÉRIFICATIONS ────────────────────────────────
 const VERIFY_REQUESTS_KEY = 'codex_verify_requests';
 const ADMIN_VERIFY_NOTIFS = 'codex_admin_verify_notifs';
@@ -1104,7 +1531,7 @@ function renderVerifications() {
       }).join('')}</div></details>`;
   }
 
-  el.innerHTML = html;
+  el.innerHTML = html + renderModuleRequests();
 }
 
 // Stocker la demande en cours pour répondre
@@ -1228,22 +1655,60 @@ function updateClock() {
   el.textContent = `${dd}/${mm}/${yy} — ${hh}H${min}`;
 }
 
+// ═══════════════════════════════════════════════
+// DÉCONNEXION AUTOMATIQUE — 2h d'inactivité
+// ═══════════════════════════════════════════════
+const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000; // 2h en ms
+let _inactivityTimer = null;
+let _warningTimer = null;
+
+function resetInactivityTimer() {
+  clearTimeout(_inactivityTimer);
+  clearTimeout(_warningTimer);
+  _warningTimer = setTimeout(() => {
+    showToast('⚠️ Déconnexion dans 5 minutes pour inactivité');
+  }, INACTIVITY_LIMIT - 5 * 60 * 1000);
+  _inactivityTimer = setTimeout(() => {
+    doLogout();
+    showToast('⏻ Session expirée après 2h d\'inactivité');
+  }, INACTIVITY_LIMIT);
+}
+
+function startInactivityWatcher() {
+  ['click','touchstart','keydown','scroll','mousemove'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, { passive:true });
+  });
+  resetInactivityTimer();
+}
+
+function stopInactivityWatcher() {
+  clearTimeout(_inactivityTimer);
+  clearTimeout(_warningTimer);
+  ['click','touchstart','keydown','scroll','mousemove'].forEach(evt => {
+    document.removeEventListener(evt, resetInactivityTimer);
+  });
+}
+
 // ── INIT ─────────────────────────────────────────
 bootstrap();
 updateClock();
 setInterval(updateClock, 1000);
 
-// Restaurer session existante (TOTP déjà validé dans cette session)
+// Restaurer session existante si TOTP validé il y a moins de 12h
 const session = getAdminSession();
 if (session) {
   const db = getDB();
   const fresh = db[session.uid];
-  if (fresh && fresh.role === 'admin') {
-    // Session valide — pas besoin de re-valider TOTP
+  if (fresh && fresh.role === 'admin' && isSessionTOTPValid()) {
+    // Session encore valide — accès direct sans TOTP
     document.getElementById('authOverlay').classList.remove('active');
     document.getElementById('adminApp').style.display = 'block';
     document.getElementById('adminUserInfo').textContent = '⚡ ' + fresh.pseudo.toUpperCase();
+    startInactivityWatcher();
     switchTab('members');
+  } else {
+    // Session expirée — effacer et demander reconnexion
+    clearAdminSession();
   }
 }
 </script>
